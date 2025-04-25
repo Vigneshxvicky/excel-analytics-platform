@@ -1,24 +1,26 @@
-// frontend/src/App.js
-import React, { useEffect, useState } from 'react';
-import axios from 'axios';
+// src/App.js
+import React, { useState } from 'react';
+import FileUpload from './components/FileUpload';
 
 function App() {
-  const [status, setStatus] = useState('Checking server status...');
+  const [fileData, setFileData] = useState(null);
 
-  useEffect(() => {
-    axios.get('http://localhost:5000/api/health')
-      .then((response) => {
-        setStatus(response.data.status);
-      })
-      .catch((error) => {
-        setStatus('Error connecting to the server');
-      });
-  }, []);
+  const handleFileUpload = (data) => {
+    // Save the parsed data from the uploaded file
+    setFileData(data);
+    console.log('Parsed Excel Data:', data);
+  };
 
   return (
     <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
       <h1>Excel Analytics Dashboard</h1>
-      <p>Backend Server Status: {status}</p>
+      <FileUpload onFileUploaded={handleFileUpload} />
+      {fileData && (
+        <div>
+          <h2>Parsed Data:</h2>
+          <pre>{JSON.stringify(fileData, null, 2)}</pre>
+        </div>
+      )}
     </div>
   );
 }
