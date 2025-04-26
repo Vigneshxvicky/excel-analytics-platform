@@ -2,10 +2,10 @@
 
 .app-container {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
+  padding: 20px;
   height: 100vh;
-  position: relative;
   transition: background-color 0.3s, color 0.3s;
 }
 
@@ -31,8 +31,26 @@
   cursor: pointer;
 }
 
-.dark-mode-toggle:hover {
-  background-color: #0056b3;
+.chart-options,
+.mapping-options {
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.mapping-options > div {
+  margin-bottom: 10px;
+}
+
+.mapping-options label {
+  font-weight: bold;
+  margin-right: 10px;
+}
+
+.mapping-options select,
+.chart-options select {
+  padding: 5px;
+  font-size: 16px;
+  border-radius: 5px;
 }
 
 .drop-area {
@@ -40,11 +58,13 @@
   border: 2px dashed #ccc;
   border-radius: 8px;
   text-align: center;
-  transition: border-color 0.3s;
+  width: 90%;
+  max-width: 600px;
 }
 
-.drop-area.drag-active {
-  border-color: #007bff;
+.loading {
+  font-size: 18px;
+  font-weight: bold;
 }
 
 .btn {
@@ -54,4 +74,5 @@
   color: #fff;
   border-radius: 4px;
   cursor: pointer;
+  margin-top: 10px;
 }
