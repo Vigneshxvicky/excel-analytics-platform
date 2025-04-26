@@ -7,10 +7,9 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
-// Import the User model
-const User = require('./models/User');
 require('dotenv').config();
 const app = express();
+
 app.use(cors());
 app.use(express.json());
 
@@ -57,6 +56,9 @@ app.post('/api/summarize', async (req, res) => {
 
 // --- Authentication Endpoints ---
 
+// Import the User model
+const User = require('./models/User');
+
 // Registration Endpoint
 app.post('/api/register', async (req, res) => {
   try {
@@ -76,8 +78,6 @@ app.post('/api/register', async (req, res) => {
   }
 });
 
-// Login Endpoint
-// Login Endpoint
 // Login Endpoint
 app.post('/api/login', async (req, res) => {
   try {
@@ -113,21 +113,21 @@ const verifyToken = (req, res, next) => {
   if (!authHeader) return res.status(401).json({ message: "No token provided" });
   const token = authHeader.split(" ")[1];
   if (!token) return res.status(401).json({ message: "No token provided" });
-  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => { // using process.env.JWT_SECRET here
+  jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
     if (err) return res.status(403).json({ message: "Failed to authenticate token" });
     req.user = decoded;
     next();
   });
 };
-// backend/server.js
+
+// --- Protected Endpoints & Predictive Analytics ---
 
 // Dummy predictive analytics endpoint
 app.post('/api/predict', (req, res) => {
   try {
     // Extract the data submitted from the client
     const { data } = req.body;
-    // Here, you could implement your real predictive model.
-    // For this example, we create a dummy prediction:
+    // Create a dummy prediction as an example:
     const dummyPrediction = {
       message: 'Based on current trends, the future looks promising!',
       suggestion: 'Invest more in the rising segments.',

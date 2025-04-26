@@ -1,6 +1,6 @@
-    // src/components/FlexibleChartGenerator.jsx
-import React, { useState, useRef, useEffect } from 'react';
-import { Line, Bar, Pie } from 'react-chartjs-2';
+// src/components/FlexibleChartGenerator.jsx
+import React, { useState, useRef, useEffect } from "react";
+import { Line, Bar, Pie } from "react-chartjs-2";
 import {
   Chart as ChartJS,
   CategoryScale,
@@ -12,29 +12,17 @@ import {
   Title,
   Tooltip,
   Legend,
-} from 'chart.js';
+} from "chart.js";
 
-// Register Chart.js components
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  BarElement,
-  ArcElement,
-  Title,
-  Tooltip,
-  Legend
-);
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, BarElement, ArcElement, Title, Tooltip, Legend);
 
 function FlexibleChartGenerator({ data = [] }) {
   const chartRef = useRef(null);
-  const [chartType, setChartType] = useState('line');
+  const [chartType, setChartType] = useState("line");
   const [headers, setHeaders] = useState([]);
-  const [xAxis, setXAxis] = useState('');
-  const [yAxis, setYAxis] = useState('');
+  const [xAxis, setXAxis] = useState("");
+  const [yAxis, setYAxis] = useState("");
 
-  // Auto-detect the headers and axes on file load
   useEffect(() => {
     if (data.length > 0) {
       const keys = Object.keys(data[0]);
@@ -45,20 +33,15 @@ function FlexibleChartGenerator({ data = [] }) {
     }
   }, [data]);
 
-  // Heuristic function that determines which column is numeric
-  // and which should be used as the x-axis.
   const autoDetectAxes = (headers, data) => {
     let numericHeader = null;
     let nonNumericHeader = null;
     headers.forEach((header) => {
-      const numericCount = data.filter(
-        (row) => {
-          const val = row[header];
-          return val !== '' && !isNaN(parseFloat(val));
-        }
-      ).length;
+      const numericCount = data.filter((row) => {
+        const val = row[header];
+        return val !== "" && !isNaN(parseFloat(val));
+      }).length;
       if (numericCount / data.length >= 0.5) {
-        // This header is mostly numeric.
         if (!numericHeader) numericHeader = header;
       } else {
         if (!nonNumericHeader) nonNumericHeader = header;
@@ -70,46 +53,32 @@ function FlexibleChartGenerator({ data = [] }) {
     };
   };
 
-  // Safety check if there's no data or headers
   if (!data || data.length === 0) {
-    return <p>No data available to display.</p>;
+    return <p className="text-gray-700">No data available to display.</p>;
   }
   if (headers.length === 0) {
-    return <p>Cannot determine the data structure.</p>;
+    return <p className="text-gray-700">Cannot determine the data structure.</p>;
   }
 
-  // Build the chart's labels using the auto-detected xAxis
   const labels = data.map((row) => row[xAxis]);
-
-  // Build dataset values from the auto-detected yAxis (parsed as numbers)
   const datasetValues = data.map((row) => {
     const value = row[yAxis];
-    return typeof value === 'number' ? value : parseFloat(value) || 0;
+    return typeof value === "number" ? value : parseFloat(value) || 0;
   });
-
   const commonDataset = { label: `${yAxis} vs ${xAxis}`, data: datasetValues };
 
-  // Build chart data differently for Pie charts vs. Line/Bar charts.
   let chartData;
-  if (chartType === 'pie') {
+  if (chartType === "pie") {
     const pieColors = labels.map((_, idx) => `hsl(${(idx * 30) % 360}, 70%, 50%)`);
-    chartData = {
-      labels,
-      datasets: [
-        {
-          ...commonDataset,
-          backgroundColor: pieColors,
-        },
-      ],
-    };
+    chartData = { labels, datasets: [{ ...commonDataset, backgroundColor: pieColors }] };
   } else {
     chartData = {
       labels,
       datasets: [
         {
           ...commonDataset,
-          borderColor: 'rgba(75,192,192,1)',
-          backgroundColor: chartType === 'bar' ? 'rgba(75,192,192,0.4)' : 'rgba(75,192,192,0.2)',
+          borderColor: "rgba(13, 71, 161, 1)",
+          backgroundColor: chartType === "bar" ? "rgba(13, 71, 161, 0.4)" : "rgba(13, 71, 161, 0.2)",
           fill: false,
         },
       ],
@@ -120,22 +89,22 @@ function FlexibleChartGenerator({ data = [] }) {
     const chartInstance = chartRef.current;
     if (chartInstance && chartInstance.toBase64Image) {
       const url = chartInstance.toBase64Image();
-      const link = document.createElement('a');
+      const link = document.createElement("a");
       link.href = url;
-      link.download = 'chart.png';
+      link.download = "chart.png";
       link.click();
     } else {
-      alert('Chart is not ready for download.');
+      alert("Chart is not ready for download.");
     }
   };
 
   const renderChart = () => {
     switch (chartType) {
-      case 'line':
+      case "line":
         return <Line ref={chartRef} data={chartData} />;
-      case 'bar':
+      case "bar":
         return <Bar ref={chartRef} data={chartData} />;
-      case 'pie':
+      case "pie":
         return <Pie ref={chartRef} data={chartData} />;
       default:
         return <Line ref={chartRef} data={chartData} />;
@@ -143,16 +112,15 @@ function FlexibleChartGenerator({ data = [] }) {
   };
 
   return (
-    <div style={{ marginTop: '20px' }}>
-      <h3>Chart Preview</h3>
-      {/* Display chart type selection */}
-      <div style={{ marginBottom: '10px' }}>
-        <label>
+    <div className="mt-6 bg-white p-6 rounded shadow-sm">
+      <h3 className="text-lg font-semibold mb-3">Chart Preview</h3>
+      <div className="mb-4">
+        <label className="mr-4">
           Chart Type:
           <select
             value={chartType}
             onChange={(e) => setChartType(e.target.value)}
-            style={{ marginLeft: '5px' }}
+            className="ml-2 border border-gray-300 rounded p-1"
           >
             <option value="line">Line Chart</option>
             <option value="bar">Bar Chart</option>
@@ -160,22 +128,19 @@ function FlexibleChartGenerator({ data = [] }) {
           </select>
         </label>
       </div>
-
-      {/* Show the auto-detected axes for reference */}
-      <div>
-        <p>
+      <div className="mb-4">
+        <p className="text-sm text-gray-600">
           Auto-detected X‑Axis: <strong>{xAxis}</strong>
         </p>
-        <p>
+        <p className="text-sm text-gray-600">
           Auto-detected Y‑Axis: <strong>{yAxis}</strong>
         </p>
       </div>
-
-      {/* Render the chart */}
       <div>{renderChart()}</div>
-
-      {/* Download Button */}
-      <button onClick={handleDownload} style={{ marginTop: '10px' }}>
+      <button
+        onClick={handleDownload}
+        className="mt-4 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded"
+      >
         Download Chart as PNG
       </button>
     </div>

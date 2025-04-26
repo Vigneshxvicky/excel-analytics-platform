@@ -1,53 +1,25 @@
 // src/components/DataTable.jsx
-import React from 'react';
+import React from "react";
 
 function DataTable({ data = [] }) {
-  if (!data.length) {
-    return <p>No data to display.</p>;
-  }
-
-  // Extract the headers from the keys of the first data object.
+  if (!data.length) return <p className="text-gray-700">No data to display.</p>;
   const headers = Object.keys(data[0]);
-
   return (
-    <div style={{ marginTop: '20px' }}>
-      <h3>Data Table</h3>
-      <table
-        style={{
-          width: '100%',
-          borderCollapse: 'collapse',
-          fontFamily: 'Arial, sans-serif',
-        }}
-        border="1"
-      >
+    <div className="mt-6 bg-white p-6 rounded shadow-sm overflow-x-auto">
+      <h3 className="text-lg font-semibold mb-3">Data Table</h3>
+      <table className="min-w-full border-collapse font-sans">
         <thead>
-          <tr>
+          <tr className="bg-gray-200">
             {headers.map((header, idx) => (
-              <th
-                key={idx}
-                style={{
-                  backgroundColor: '#f2f2f2',
-                  padding: '8px',
-                  textAlign: 'left',
-                }}
-              >
-                {header}
-              </th>
+              <th key={idx} className="py-2 px-4 text-left text-gray-700">{header}</th>
             ))}
           </tr>
         </thead>
         <tbody>
           {data.map((row, rowIndex) => (
-            <tr key={rowIndex}>
+            <tr key={rowIndex} className="border-t">
               {headers.map((header, colIndex) => (
-                <td
-                  key={colIndex}
-                  style={{
-                    padding: '8px',
-                  }}
-                >
-                  {row[header]}
-                </td>
+                <td key={colIndex} className="py-2 px-4 text-gray-600">{row[header]}</td>
               ))}
             </tr>
           ))}

@@ -1,6 +1,6 @@
 // src/components/PredictiveAnalytics.jsx
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState } from "react";
+import axios from "axios";
 
 function PredictiveAnalytics({ data }) {
   const [prediction, setPrediction] = useState(null);
@@ -11,34 +11,33 @@ function PredictiveAnalytics({ data }) {
     setLoading(true);
     setError(null);
     try {
-      // Send data to the backend predict endpoint.
-      // In a real-world scenario, you might send only aggregated metrics.
-      const response = await axios.post('http://localhost:5000/api/predict', { data });
-      if (response.data.success) {
-        setPrediction(response.data.prediction);
-      } else {
-        setError('Prediction failed.');
-      }
+      const response = await axios.post("http://localhost:5000/api/predict", { data });
+      setPrediction(response.data.success ? response.data.prediction : "Prediction failed.");
     } catch (err) {
       console.error(err);
-      setError('Prediction error.');
+      setError("Prediction error.");
     }
     setLoading(false);
   };
 
   return (
-    <div style={{ marginTop: '20px', padding: '10px', border: '1px solid #ddd' }}>
-      <h2>Predictive Analytics</h2>
-      <button onClick={handlePredict} style={{ padding: '10px', fontSize: '16px' }}>
-        {loading ? 'Predicting...' : 'Run Prediction'}
+    <div className="mt-6 bg-white p-6 rounded shadow-sm">
+      <h2 className="text-xl font-semibold mb-4">Predictive Analytics</h2>
+      <button
+        onClick={handlePredict}
+        className="bg-blue-700 hover:bg-blue-800 text-white py-2 px-4 rounded"
+      >
+        {loading ? "Predicting..." : "Run Prediction"}
       </button>
       {prediction && (
-        <div style={{ marginTop: '15px' }}>
-          <h3>Forecast:</h3>
-          <pre>{JSON.stringify(prediction, null, 2)}</pre>
+        <div className="mt-4">
+          <h3 className="text-lg font-semibold">Forecast:</h3>
+          <pre className="bg-gray-100 p-3 rounded text-gray-800">
+            {JSON.stringify(prediction, null, 2)}
+          </pre>
         </div>
       )}
-      {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
+      {error && <p className="mt-2 text-red-500">{error}</p>}
     </div>
   );
 }
