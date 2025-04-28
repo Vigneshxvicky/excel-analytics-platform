@@ -145,7 +145,7 @@ function LoginForm() {
                   checked={loginType === "admin"}
                   onChange={() => setLoginType("admin")}
                 />
-                <span className="ml-2 ">Admin</span>
+                <span className="ml-2">Admin</span>
               </label>
             </div>
 
@@ -213,4 +213,4 @@ function LoginForm() {
   );
 }
 
-export default LoginForm; 
+export default LoginForm;

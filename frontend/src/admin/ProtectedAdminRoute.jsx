@@ -1,25 +1,17 @@
 // src/admin/ProtectedAdminRoute.jsx
-import React from "react";
-import { Navigate } from "react-router-dom";
-import { jwtDecode } from "jwt-decode"; // Use the correct named export from jwt-decode
+import React from 'react';
+import { Navigate } from 'react-router-dom';
 
 const ProtectedAdminRoute = ({ children }) => {
   const token = localStorage.getItem("authToken");
 
-  if (!token) {
-    return <Navigate to="/login" />;
-  }
+  // For demonstration purposes, this checks if the decoded token has a role of "admin".
+  // In production, use a proper token verification method.
+  const isAdmin = token
+    ? JSON.parse(atob(token.split('.')[1])).role === "admin"
+    : false;
 
-  try {
-    const decoded = jwtDecode(token);
-    if (decoded.role !== "admin") {
-      return <Navigate to="/login" />;
-    }
-  } catch (error) {
-    return <Navigate to="/login" />;
-  }
-
-  return children;
+  return isAdmin ? children : <Navigate to="/login" />;
 };
 
 export default ProtectedAdminRoute;
