@@ -244,6 +244,24 @@ app.get('/api/protected', verifyToken, (req, res) => {
   res.json({ message: 'This is a protected route.', user: req.user });
 });
 
+// ========= Admin Dashboard Routes =========
+
+// Define the /api/users route
+// Example in your backend (Express)
+app.get("/api/dashboard/users", (req, res) => {
+  // Replace with actual logic, e.g.,
+  res.json({ users: [{ id: 1, name: "Admin User", role: "admin" }] });
+});
+
+app.get("/api/dashboard/analytics", (req, res) => {
+  // Replace with actual logic, e.g.,
+  res.json({
+    labels: ["Jan", "Feb", "Mar", "Apr", "May"],
+    dataset: [100, 150, 200, 250, 300]
+  });
+}
+);
+
 // ========= Start the Server =========
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));

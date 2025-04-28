@@ -19,6 +19,8 @@
     "express-openid-connect": "^2.18.0",
     "express-session": "^1.18.1",
     "jsonwebtoken": "^9.0.2",
+    "jspdf": "^3.0.1",
+    "jspdf-autotable": "^5.0.2",
     "mongoose": "^8.13.3",
     "multer": "^1.4.5-lts.2",
     "passport": "^0.7.0",
