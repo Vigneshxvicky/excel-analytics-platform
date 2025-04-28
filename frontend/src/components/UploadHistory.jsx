@@ -1,30 +1,49 @@
 // src/components/UploadHistory.jsx
 import React, { useEffect, useState } from "react";
+import axios from "axios";
 
 function UploadHistory() {
   const [history, setHistory] = useState([]);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    const storedHistory = localStorage.getItem("uploadHistory");
-    if (storedHistory) {
-      setHistory(JSON.parse(storedHistory));
-    }
+    const fetchHistory = async () => {
+      try {
+        const token = localStorage.getItem("authToken");
+        // In src/components/UploadHistory.jsx
+const response = await axios.get("http://localhost:5000/api/upload-history", {
+  headers: {
+    Authorization: `Bearer ${token}`,
+  },
+});
+        if (response.data.success) {
+          setHistory(response.data.history); // Expecting { success: true, history: [...] }
+        } else {
+          setError("Failed to load upload history.");
+        }
+      } catch (err) {
+        console.error("Error retrieving upload history:", err);
+        setError("Error retrieving upload history.");
+      }
+    };
+
+    fetchHistory();
   }, []);
 
   return (
-    <div className="mt-6 bg-white p-6 rounded shadow-sm">
-      <h2 className="text-xl font-semibold mb-3">Upload History</h2>
-      {history.length > 0 ? (
-        <ul className="list-disc pl-5">
-          {history.map((upload, idx) => (
-            <li key={idx} className="mb-1">
-              <span className="font-bold">{upload.fileName}</span> – {upload.recordCount} records –{" "}
-              <span className="text-gray-600">{upload.uploadedAt}</span>
+    <div>
+      <h3 className="text-xl font-bold mb-4">Upload History</h3>
+      {error && <p className="text-red-500">{error}</p>}
+      {(!error && history.length === 0) ? (
+        <p>No uploads found.</p>
+      ) : (
+        <ul>
+          {history.map((item) => (
+            <li key={item._id}>
+              {item.filename} - {new Date(item.uploadDate).toLocaleString()}
             </li>
           ))}
         </ul>
-      ) : (
-        <p className="text-gray-700">No uploads yet.</p>
       )}
     </div>
   );
