@@ -23,7 +23,7 @@ const AdminDashboard = () => {
         <div className="p-6 flex-grow">
           <Routes>
             <Route index element={<DashboardHome />} />
-            <Route path="home" element={<DashboardHome />} />
+            <Route to="admin/dashboard/home" path="home" element={<DashboardHome />} />
             <Route path="users" element={<UserManagement />} />
             <Route path="analytics" element={<AnalyticsOverview />} />
             <Route path="reports" element={<ReportsExport />} />

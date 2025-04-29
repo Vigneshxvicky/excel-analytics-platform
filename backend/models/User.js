@@ -16,3 +16,15 @@ const userSchema = new mongoose.Schema({
 });
 
 module.exports = mongoose.model("User", userSchema);
+
+const mongoose = require("mongoose");
+
+const UserSchema = new mongoose.Schema({
+    name: String,
+    email: String,
+    role: String
+});
+
+module.exports = mongoose.model("User", UserSchema);
+
+

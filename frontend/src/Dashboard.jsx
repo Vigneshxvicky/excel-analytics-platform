@@ -6,18 +6,32 @@ function Dashboard() {
   const [protectedData, setProtectedData] = useState(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
-    axios.get('http://localhost:5000/api/protected', {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-      .then(response => {
+    const fetchProtectedData = async () => {
+      const token = localStorage.getItem('token');
+      
+      if (!token) {
+        console.error("No token found, redirecting to login...");
+        return;
+      }
+  
+      try {
+        const response = await axios.get('http://localhost:5000/api/protected', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+  
         setProtectedData(response.data);
-      })
-      .catch(error => {
-        console.error('Error fetching protected data:', error);
-      });
+      } catch (error) {
+        console.error("Error fetching protected data:", error);
+      }
+    };
+  
+    fetchProtectedData();
   }, []);
-
+  {protectedData ? (
+    <pre>{JSON.stringify(protectedData, null, 2)}</pre>
+  ) : (
+    <p>No data available or loading...</p>
+  )}
   return (
     <div>
       <h2>Dashboard</h2>

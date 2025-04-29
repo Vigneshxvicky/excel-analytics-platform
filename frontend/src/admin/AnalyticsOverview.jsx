@@ -16,63 +16,60 @@ ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement);
 const AnalyticsOverview = () => {
   const [chartData, setChartData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [error, setError] = useState(null); // Keep it active
 
-  useEffect(() => {
-    const fetchAnalyticsData = async () => {
-      try {
-        // Attempt to fetch from your server (this will likely fail since you don't have an endpoint)
-        const response = await axios.get("http://localhost:5000/api/dashboard/analytics");
-        // Assuming the response data is structured like:
-        // { labels: ["Jan", "Feb", ...], dataset: [/* corresponding values */] }
-        const { labels, dataset } = response.data;
+useEffect(() => {
+  const fetchAnalyticsData = async () => {
+    try {
+      const response = await axios.get("http://localhost:5000/api/dashboard/analytics");
+      const { labels, dataset } = response.data;
 
-        const data = {
-          labels: labels,
-          datasets: [
-            {
-              label: "User Growth",
-              data: dataset,
-              backgroundColor: "rgba(54, 162, 235, 0.5)",
-              borderColor: "#36A2EB",
-              borderWidth: 2,
-              fill: true,
-            },
-          ],
-        };
+      const data = {
+        labels: labels,
+        datasets: [
+          {
+            label: "User Growth",
+            data: dataset,
+            backgroundColor: "rgba(54, 162, 235, 0.5)",
+            borderColor: "#36A2EB",
+            borderWidth: 2,
+            fill: true,
+          },
+        ],
+      };
 
-        setChartData(data);
-        setLoading(false);
-      } catch (err) {
-        console.error("Server not available. Falling back to dummy data.", err);
+      setChartData(data);
+      setLoading(false);
+    } catch (err) {
+      console.error("Server not available. Falling back to dummy data.", err);
+      setError("Unable to fetch real analytics data. Showing dummy data.");
 
-        // Fallback dummy data since no server endpoint is available
-        const dummyData = {
-          labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
-          dataset: [100, 150, 200, 250, 300, 350],
-        };
+      const dummyData = {
+        labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun"],
+        dataset: [100, 150, 200, 250, 300, 350],
+      };
 
-        const data = {
-          labels: dummyData.labels,
-          datasets: [
-            {
-              label: "User Growth (Dummy Data)",
-              data: dummyData.dataset,
-              backgroundColor: "rgba(54, 162, 235, 0.5)",
-              borderColor: "#36A2EB",
-              borderWidth: 2,
-              fill: true,
-            },
-          ],
-        };
+      const data = {
+        labels: dummyData.labels,
+        datasets: [
+          {
+            label: "User Growth (Dummy Data)",
+            data: dummyData.dataset,
+            backgroundColor: "rgba(54, 162, 235, 0.5)",
+            borderColor: "#36A2EB",
+            borderWidth: 2,
+            fill: true,
+          },
+        ],
+      };
 
-        setChartData(data);
-        setLoading(false);
-      }
-    };
+      setChartData(data);
+      setLoading(false);
+    }
+  };
 
-    fetchAnalyticsData();
-  }, []);
+  fetchAnalyticsData();
+}, []);
 
   if (loading) return <p>Loading analytics data...</p>;
   if (error) return <p>{error}</p>;

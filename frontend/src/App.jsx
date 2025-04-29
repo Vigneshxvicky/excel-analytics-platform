@@ -1,3 +1,153 @@
+// // src/App.js
+// import React, { useState, useEffect } from "react";
+// import {
+//   BrowserRouter,
+//   Routes,
+//   Route,
+//   Navigate,
+//   useLocation,
+//   useNavigate,
+// } from "react-router-dom";
+
+// // Import User Components
+// import LoginForm from "./components/LoginForm";
+// import RegisterForm from "./components/RegisterForm";
+// import FileUpload from "./components/FileUpload";
+// import Header from "./components/Header";
+// import ProtectedRoute from "./components/ProtectedRoute";
+// import FlexibleChartGenerator from "./components/FlexibleChartGenerator";
+// import SummaryReport from "./components/SummaryReport";
+// import UploadHistory from "./components/UploadHistory";
+// import DataTable from "./components/DataTable";
+// import ExportCSV from "./components/ExportCSV";
+// // import PivotTableDashboard from "./components/PivotTableDashboard";
+
+// // Import Admin Dashboard Components
+// import ProtectedAdminRoute from "./admin/ProtectedAdminRoute";
+// import AdminDashboard from "./admin/AdminDashboard";
+
+// // Import ThemeProvider to wrap the entire app and provide dark mode
+// import { ThemeProvider } from "./context/ThemeContext";
+
+// /*
+//   DashboardWrapper extracts a token from the URL (if present)
+//   and displays file upload + data analysis.
+// */
+// const DashboardWrapper = ({ fileData = [], handleFileUploaded }) => {
+//   const location = useLocation();
+//   const navigate = useNavigate();
+
+//   // Extract and store JWT token if present in URL
+//   React.useEffect(() => {
+//     const params = new URLSearchParams(location.search);
+//     const token = params.get("token");
+//     if (token) {
+//       localStorage.setItem("authToken", token);
+//       navigate("/dashboard", { replace: true });
+//     }
+//   }, [location, navigate]);
+
+//   return (
+//     <div className="min-h-screen bg-gradient-to-br from-blue-100 to-purple-200 font-sans">
+//       <Header />
+//       <main className="max-w-7xl mx-auto p-6">
+//         {/* File Upload and Upload History Section */}
+//         <section className="mb-8">
+//           <div className="bg-white p-6 rounded-xl shadow-lg "> 
+//             <FileUpload onFileUploaded={handleFileUploaded} />
+//             <div className="mt-6">
+//               <UploadHistory />
+//             </div>
+//           </div>
+//         </section>
+
+//         {/* Data Analysis Section – Render only when fileData exists */}
+//         {Array.isArray(fileData) && fileData.length > 0 && (
+//           <section>
+//             <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">
+//               Data Analysis
+//             </h2>
+//             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+//               <div className="bg-white p-6 rounded-xl shadow-lg transition-transform duration-300 hover:scale-105">
+//                 <FlexibleChartGenerator data={fileData} />
+//               </div>
+//               <div className="bg-white p-6 rounded-xl shadow-lg transition-transform duration-300 hover:scale-105">
+//                 <SummaryReport chartData={fileData} />
+//               </div>
+//               <div className="bg-white p-6 rounded-xl shadow-lg transition-transform duration-300 hover:scale-105">
+//                 <DataTable data={fileData} />
+//               </div>
+//               <div className="bg-white p-6 rounded-xl shadow-lg transition-transform duration-300 hover:scale-105">
+//                 <ExportCSV data={fileData} filename="uploaded-data.csv" />
+//               </div>
+//             </div>
+//           </section>
+//         )}
+//       </main>
+//       <footer className="bg-gray-800 text-center text-white py-4">
+//         <p>&copy; {new Date().getFullYear()} Excel Analytics Dashboard. All rights reserved.</p>
+//       </footer>
+//     </div>
+//   );
+// };
+
+
+// function App() {
+//   // Hold file data in App state.
+//   const [fileData, setFileData] = useState([]);
+
+//   const handleFileUploaded = (data) => {
+//     console.log("handleFileUploaded received data:", data);
+//     setFileData(data);
+//   };
+
+//   useEffect(() => {
+//     console.log("App updated fileData:", fileData);
+//   }, [fileData]);
+
+//   return (
+//     <ThemeProvider>
+//       <BrowserRouter>
+//         <Routes>
+//           {/* Public Routes */}
+//           <Route path="/login" element={<LoginForm />} />
+//           <Route path="/register" element={<RegisterForm />} />
+
+//           {/* Protected User Dashboard */}
+//           <Route
+//             path="/dashboard"
+//             element={
+//               <ProtectedRoute>
+//                 <DashboardWrapper
+//                   fileData={fileData}
+//                   handleFileUploaded={handleFileUploaded}
+//                 />
+//               </ProtectedRoute>
+//             }
+//           />
+
+//           {/* Protected Admin Dashboard */}
+//           <Route
+//             path="/admin/dashboard/*"
+//             element={
+//               <ProtectedAdminRoute>
+//                 <AdminDashboard />
+//               </ProtectedAdminRoute>
+//             }
+//           />
+
+//           <Route path="*" element={<Navigate to="/login" />} />
+//         </Routes>
+//       </BrowserRouter>
+//     </ThemeProvider>
+//   );
+// }
+
+// export default App;
+
+// src/App.js
+// src/App.js
+// src/App.js
 // src/App.js
 import React, { useState, useEffect } from "react";
 import {
@@ -9,93 +159,160 @@ import {
   useNavigate,
 } from "react-router-dom";
 
-// Import User Components
+// Import your core components (logic remains intact)
 import LoginForm from "./components/LoginForm";
 import RegisterForm from "./components/RegisterForm";
 import FileUpload from "./components/FileUpload";
-import Header from "./components/Header";
 import ProtectedRoute from "./components/ProtectedRoute";
 import FlexibleChartGenerator from "./components/FlexibleChartGenerator";
 import SummaryReport from "./components/SummaryReport";
 import UploadHistory from "./components/UploadHistory";
 import DataTable from "./components/DataTable";
 import ExportCSV from "./components/ExportCSV";
-// import PivotTableDashboard from "./components/PivotTableDashboard";
 
 // Import Admin Dashboard Components
 import ProtectedAdminRoute from "./admin/ProtectedAdminRoute";
 import AdminDashboard from "./admin/AdminDashboard";
 
-// Import ThemeProvider to wrap the entire app and provide dark mode
+// Import ThemeProvider (for dark/light mode)
 import { ThemeProvider } from "./context/ThemeContext";
 
 /*
-  DashboardWrapper helps extract the JWT token from the URL query string
-  (for cases where you sign in with Google and redirect with ?token=...)
-  Once extracted, it stores the token in localStorage and cleans up the URL.
+  DashboardWrapper:
+  - Extracts the token from the URL (if present) and saves it.
+  - Lays out the dashboard using our futuristic mosaic design.
+  - The order is now: File Upload, Data Analysis, then Upload History.
 */
-const DashboardWrapper = ({ fileData, handleFileUploaded }) => {
+const DashboardWrapper = ({ fileData = [], handleFileUploaded }) => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  // Extract token from URL and store it.
   useEffect(() => {
-    // Check if there's a token in the URL query string (e.g., after Google login)
     const params = new URLSearchParams(location.search);
     const token = params.get("token");
     if (token) {
-      // Save the token in localStorage for use throughout the app.
       localStorage.setItem("authToken", token);
-      // Clean up the URL by removing the token query string.
       navigate("/dashboard", { replace: true });
     }
   }, [location, navigate]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-100 to-purple-200 font-sans">
-      <Header />
-      <main className="max-w-7xl mx-auto p-6">
-        {/* File Upload and History Section */}
-        <section className="mb-8">
-          <div className="bg-white p-6 rounded-xl shadow-lg transform transition duration-300 hover:scale-105">
-            <FileUpload onFileUploaded={handleFileUploaded} />
-            <div className="mt-6">
-              <UploadHistory />
-            </div>
-          </div>
-        </section>
+    <div
+      className="min-h-screen relative overflow-hidden font-sans"
+      style={{
+        background: "radial-gradient(at top left, #3b82f6, #9333ea)",
+      }}
+    >
+      {/* Abstract overlay image for texture */}
+      <div
+        className="absolute inset-0 opacity-20 pointer-events-none"
+        style={{
+          backgroundImage:
+            "url('https://source.unsplash.com/random/1920x1080?abstract')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+        }}
+      ></div>
 
-        {/* Analytics Section – Only Display if Data Exists */}
-        {fileData.length > 0 && (
-          <section>
-            <h2 className="text-3xl font-bold text-gray-800 mb-6 text-center">
+      {/* Header */}
+      <header className="relative z-10 flex items-center justify-between p-6">
+        <div className="text-white text-3xl font-extrabold drop-shadow-lg">
+          Excel Mosaic
+        </div>
+        <nav className="space-x-6">
+          <a href="/dashboard" className="text-white hover:underline">
+            Home
+          </a>
+          <a href="/admin/dashboard" className="text-white hover:underline">
+            Admin
+          </a>
+          <a href="/login" className="text-white hover:underline">
+            Logout
+          </a>
+        </nav>
+      </header>
+
+      <div className="relative z-10 flex">
+        {/* Unique Clipped Sidebar */}
+        <aside
+          className="w-1/3 lg:w-1/4 h-screen bg-gradient-to-b from-purple-800 to-indigo-800 text-white p-8"
+          style={{ clipPath: "polygon(0 0, 100% 0, 80% 100%, 0% 100%)" }}
+        >
+          <h2 className="text-4xl font-bold mb-8 drop-shadow-lg">Menu</h2>
+          <nav className="space-y-6">
+            <a
+              href="#upload"
+              className="block px-4 py-2 rounded hover:bg-indigo-700 transition"
+            >
+              File Upload
+            </a>
+            <a
+              href="#analysis"
+              className="block px-4 py-2 rounded hover:bg-indigo-700 transition"
+            >
               Data Analysis
-            </h2>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div className="bg-white p-6 rounded-xl shadow-lg transform transition duration-300 hover:scale-105">
-                <FlexibleChartGenerator data={fileData} />
-              </div>
-              <div className="bg-white p-6 rounded-xl shadow-lg transform transition duration-300 hover:scale-105">
-                <SummaryReport chartData={fileData} />
-              </div>
-              <div className="bg-white p-6 rounded-xl shadow-lg transform transition duration-300 hover:scale-105">
-                <DataTable data={fileData} />
-              </div>
-              <div className="bg-white p-6 rounded-xl shadow-lg transform transition duration-300 hover:scale-105">
-                <ExportCSV data={fileData} filename="uploaded-data.csv" />
-              </div>
-              {/* Optionally include more components */}
-              {/* <div className="bg-white p-6 rounded-xl shadow-lg transform transition duration-300 hover:scale-105">
-                <PivotTableDashboard data={fileData} />
-              </div> */}
+            </a>
+            <a
+              href="#history"
+              className="block px-4 py-2 rounded hover:bg-indigo-700 transition"
+            >
+              Upload History
+            </a>
+          </nav>
+        </aside>
+
+        {/* Main Content */}
+        <main className="flex-1 p-8 overflow-y-auto space-y-16">
+          {/* File Upload Section */}
+          <section id="upload">
+            <div className="bg-white bg-opacity-80 backdrop-blur-md rounded-xl shadow-2xl p-8">
+              <h2 className="text-2xl font-bold text-gray-800 mb-6">
+                File Upload
+              </h2>
+              <FileUpload onFileUploaded={handleFileUploaded} />
             </div>
           </section>
-        )}
-      </main>
-      <footer className="bg-gray-800 text-center text-white py-4">
-        <p>
-          &copy; {new Date().getFullYear()} Excel Analytics Dashboard. All rights
-          reserved.
-        </p>
+
+          {/* Data Analysis Section */}
+          {Array.isArray(fileData) && fileData.length > 0 && (
+            <section id="analysis">
+              <h2 className="text-3xl font-bold text-white text-center mb-10">
+                Data Analysis
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="bg-white bg-opacity-80 backdrop-blur-md rounded-xl shadow-2xl p-6 transform transition duration-300 hover:scale-105">
+                  <FlexibleChartGenerator data={fileData} />
+                </div>
+                <div className="bg-white bg-opacity-80 backdrop-blur-md rounded-xl shadow-2xl p-6 transform transition duration-300 hover:scale-105">
+                  <SummaryReport chartData={fileData} />
+                </div>
+                <div className="bg-white bg-opacity-80 backdrop-blur-md rounded-xl shadow-2xl p-6 transform transition duration-300 hover:scale-105">
+                  <DataTable data={fileData} />
+                </div>
+                <div className="bg-white bg-opacity-80 backdrop-blur-md rounded-xl shadow-2xl p-6 transform transition duration-300 hover:scale-105">
+                  <ExportCSV data={fileData} filename="uploaded-data.csv" />
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* Upload History Section */}
+          <section id="history">
+            <div className="bg-white bg-opacity-80 backdrop-blur-md rounded-xl shadow-2xl p-8">
+              <h2 className="text-2xl font-bold text-gray-800 mb-6">
+                Upload History
+              </h2>
+              <UploadHistory />
+            </div>
+          </section>
+        </main>
+      </div>
+
+      {/* Footer */}
+      <footer className="relative z-10 text-center p-4 text-white opacity-90">
+        &copy; {new Date().getFullYear()} Excel Mosaic Dashboard. All rights
+        reserved.
       </footer>
     </div>
   );
@@ -105,18 +322,23 @@ function App() {
   const [fileData, setFileData] = useState([]);
 
   const handleFileUploaded = (data) => {
+    console.log("File uploaded data received:", data);
     setFileData(data);
   };
+
+  useEffect(() => {
+    console.log("App fileData updated:", fileData);
+  }, [fileData]);
 
   return (
     <ThemeProvider>
       <BrowserRouter>
         <Routes>
-          {/* Public Routes: Login & Register (No Header) */}
+          {/* Public Routes */}
           <Route path="/login" element={<LoginForm />} />
           <Route path="/register" element={<RegisterForm />} />
 
-          {/* Protected User Dashboard Route */}
+          {/* Protected User Dashboard */}
           <Route
             path="/dashboard"
             element={
@@ -129,9 +351,9 @@ function App() {
             }
           />
 
-          {/* Protected Admin Dashboard Route */}
+          {/* Protected Admin Dashboard */}
           <Route
-            path="/admin/dashboard"
+            path="/admin/dashboard/*"
             element={
               <ProtectedAdminRoute>
                 <AdminDashboard />
@@ -139,7 +361,6 @@ function App() {
             }
           />
 
-          {/* Redirect any unknown route to /login */}
           <Route path="*" element={<Navigate to="/login" />} />
         </Routes>
       </BrowserRouter>
