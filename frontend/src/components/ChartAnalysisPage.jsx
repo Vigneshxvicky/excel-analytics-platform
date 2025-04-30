@@ -118,7 +118,7 @@ function ChartAnalysisPage() {
         }],
       };
     }
-    setChartData(newChartData);
+setChartData(newChartData);
 
   }, [data, xAxis, yAxis, chartType]);
 
