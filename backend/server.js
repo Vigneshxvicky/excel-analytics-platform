@@ -17,9 +17,12 @@ const { GoogleGenerativeAI } = require("@google/generative-ai"); // Import Googl
 
 // Initialize Express App
 const app = express();
-app.use(cors());
+const cors = require('cors');
+app.use(cors({ origin: 'https://excel-analytics-platform-frontend.onrender.com' }));
 app.use(express.json());
-
+res.setHeader('Access-Control-Allow-Origin', 'https://excel-analytics-platform-frontend.onrender.com');
+res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 // Setup Server & WebSocket
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
