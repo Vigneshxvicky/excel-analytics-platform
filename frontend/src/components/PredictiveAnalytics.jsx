@@ -11,7 +11,7 @@ function PredictiveAnalytics({ data }) {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.post("http://localhost:5000/api/predict", { data });
+      const response = await axios.post("https://excel-analytics-platform-backend.onrender.com/api/predict", { data });
       setPrediction(response.data.success ? response.data.prediction : "Prediction failed.");
     } catch (err) {
       console.error(err);

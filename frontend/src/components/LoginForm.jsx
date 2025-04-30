@@ -23,7 +23,7 @@ function LoginForm() {
     setError("");
 
     try {
-      const response = await axios.post("http://localhost:5000/api/login", {
+      const response = await axios.post("https://excel-analytics-platform-backend.onrender.com/api/login", {
         email,
         password,
       });
@@ -182,7 +182,7 @@ function LoginForm() {
           {/* Google Login Button */}
           <div>
             <a
-              href="http://localhost:5000/auth/google"
+              href="https://excel-analytics-platform-backend.onrender.com/auth/google"
               className="flex items-center justify-center w-full bg-red-600 text-white py-2.5 px-4 rounded-lg shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition duration-300 ease-in-out transform hover:-translate-y-1" // Added subtle hover effect
             >
               <svg

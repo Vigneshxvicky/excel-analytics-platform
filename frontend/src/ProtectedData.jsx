@@ -8,7 +8,7 @@ function ProtectedData() {
 
   useEffect(() => {
     const token = localStorage.getItem('token');
-    axios.get('http://localhost:5000/api/protected', {
+    axios.get('https://excel-analytics-platform-backend.onrender.com/api/protected', {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(response => {

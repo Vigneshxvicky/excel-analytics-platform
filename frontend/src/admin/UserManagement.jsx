@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import io from 'socket.io-client'; // Import socket.io client
 
-const SOCKET_SERVER_URL = 'http://localhost:5000'; // Your backend URL
+const SOCKET_SERVER_URL = 'https://excel-analytics-platform-backend.onrender.com'; // Your backend URL
 
 const UserManagement = () => {
   const [users, setUsers] = useState([]);

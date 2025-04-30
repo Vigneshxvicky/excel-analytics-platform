@@ -17,7 +17,7 @@ import {
 // Register Chart.js components
 ChartJS.register(LineElement, CategoryScale, LinearScale, PointElement, Tooltip, Legend);
 
-const SOCKET_SERVER_URL = 'http://localhost:5000'; // Backend URL
+const SOCKET_SERVER_URL = 'https://excel-analytics-platform-backend.onrender.com'; // Backend URL
 
 
 const AnalyticsOverview = () => {

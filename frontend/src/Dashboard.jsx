@@ -15,7 +15,7 @@ function Dashboard() {
       }
   
       try {
-        const response = await axios.get('http://localhost:5000/api/protected', {
+        const response = await axios.get('https://excel-analytics-platform-backend.onrender.com/api/protected', {
           headers: { Authorization: `Bearer ${token}` }
         });
   
