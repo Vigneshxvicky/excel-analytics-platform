@@ -13,18 +13,7 @@ const userSchema = new mongoose.Schema({
   },
   googleId: { type: String, unique: true, sparse: true },
   role: { type: String, default: 'user' }
-});
+}, { timestamps: true }); // <-- Add this options object
 
-module.exports = mongoose.model("User", userSchema);
-
-const mongoose = require("mongoose");
-
-const UserSchema = new mongoose.Schema({
-    name: String,
-    email: String,
-    role: String
-});
-
-module.exports = mongoose.model("User", UserSchema);
-
+module.exports = mongoose.model("User", userSchema)
 

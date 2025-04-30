@@ -51,10 +51,10 @@ function LoginForm() {
   };
 
   // Glassmorphism card styling (different styles for user vs. admin)
-  const cardClassUser =
-    "bg-white/70 backdrop-blur-lg p-8 rounded-3xl shadow-2xl w-full max-w-md border border-white/30 transform transition-all duration-500 hover:scale-105";
+  const cardClassUser = // Reduced padding on small screens
+    "bg-white/70 backdrop-blur-lg p-6 sm:p-8 rounded-3xl shadow-2xl w-full max-w-md border border-white/30 transform transition-all duration-500 hover:scale-105 mx-4 sm:mx-0"; // Add horizontal margin on smallest screens
   const cardClassAdmin =
-    "bg-gray-800/70 backdrop-blur-lg p-8 rounded-3xl shadow-2xl w-full max-w-md border border-white/30 transform transition-all duration-500 hover:scale-105";
+    "bg-gray-800/70 backdrop-blur-lg p-6 sm:p-8 rounded-3xl shadow-2xl w-full max-w-md border border-white/30 transform transition-all duration-500 hover:scale-105 mx-4 sm:mx-0"; // Add horizontal margin on smallest screens
   const cardClass = loginType === "admin" ? cardClassAdmin : cardClassUser;
 
   const headerClass = loginType === "admin"

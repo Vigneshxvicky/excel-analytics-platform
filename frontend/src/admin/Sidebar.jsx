@@ -20,15 +20,15 @@ const Sidebar = () => {
   <li>
     <NavLink to="/admin/dashboard/analytics" className={navLinkClass}>Analytics</NavLink>
   </li>
-  <li>
+  {/* <li>
     <NavLink to="/admin/dashboard/reports" className={navLinkClass}>Reports</NavLink>
-  </li>
-  <li>
+  </li> */}
+  {/* <li>
     <NavLink to="/admin/dashboard/notifications" className={navLinkClass}>Notifications</NavLink>
   </li>
   <li>
     <NavLink to="/admin/dashboard/logs" className={navLinkClass}>Activity Logs</NavLink>
-  </li>
+  </li> */}
 </ul>
       </nav>
     </div>

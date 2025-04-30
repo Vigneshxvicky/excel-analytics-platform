@@ -23,7 +23,7 @@ function ExportCSV({ data, filename = "data.csv" }) {
   };
 
   return (
-    <div className="mt-6 bg-white p-6 rounded shadow-sm">
+    <div className="mt-6 bg-white p-4 md:p-6 rounded shadow-sm"> {/* Adjust padding */}
       <button
         onClick={handleDownload}
         className="bg-blue-700 hover:bg-blue-800 text-white py-2 px-4 rounded"

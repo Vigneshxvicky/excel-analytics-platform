@@ -1,18 +1,24 @@
-// src/context/ThemeContext.js
-import React, { createContext, useState, useEffect } from "react";
+// src/context/ThemeContext.jsx
+import React, { createContext, useState, useEffect } from 'react';
 
 export const ThemeContext = createContext();
 
 export const ThemeProvider = ({ children }) => {
-  // Read from localStorage—default to false if not set.
-  const [darkMode, setDarkMode] = useState(
-    localStorage.getItem("darkMode") === "true" || false
-  );
+  // Initialize state from localStorage or default to false (light mode)
+  const [darkMode, setDarkMode] = useState(() => {
+    const savedMode = localStorage.getItem('darkMode');
+    return savedMode ? JSON.parse(savedMode) : false;
+  });
 
   useEffect(() => {
-    localStorage.setItem("darkMode", darkMode);
-    // Optionally update the body class for global styles
-    document.body.className = darkMode ? "dark" : "light";
+    const root = window.document.documentElement;
+    if (darkMode) {
+      root.classList.add('dark');
+    } else {
+      root.classList.remove('dark');
+    }
+    // Save the preference to localStorage
+    localStorage.setItem('darkMode', JSON.stringify(darkMode));
   }, [darkMode]);
 
   return (

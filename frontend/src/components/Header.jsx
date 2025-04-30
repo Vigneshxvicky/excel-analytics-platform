@@ -3,29 +3,43 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import { getUserFromToken } from "../utils/auth";
 
-function Header() {
+function Header({ onMenuToggle }) { // Accept onMenuToggle prop
   const navigate = useNavigate();
   const user = getUserFromToken(); // Check what this returns in the console
-
+  const userInitial = user?.name ? user.name.charAt(0).toUpperCase() : "?";
   const handleLogout = () => {
     localStorage.removeItem("authToken");
     navigate("/login");
   };
 
   return (
-    <header className="flex items-center justify-between py-4 px-8 bg-blue-600 text-white">
-      <h1 className="text-3xl font-bold">Excel Analytics Dashboard</h1>
-      <div className="flex items-center space-x-6">
+    <header className="flex flex-col sm:flex-row items-center justify-between py-3 px-4 sm:px-8 bg-blue-600 text-white shadow-md fixed top-0 left-0 right-0 z-20 h-16"> {/* Added fixed, z-20, h-16 */}
+      <div className="flex items-center w-full sm:w-auto mb-2 sm:mb-0">
+        {/* Burger Menu Button - visible on all screens for this example */}
+        {/* <button onClick={onMenuToggle} className="mr-4 p-2 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+          <svg className="h-6 w-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" aria-hidden="true">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
+          </svg>
+        </button> */}
+        {/* Title */}
+        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-center sm:text-left">Excel Analytics</h1>
+      </div>
+      <div className="flex items-center space-x-4 sm:space-x-6">
+        {/* User Initial Icon */}
         {user && user.name ? (
-          <div className="flex items-center space-x-2">
-            <span className="font-medium">Hello, {user.name}</span>
+          <div className="flex items-center justify-center h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-purple-500 text-white font-bold text-sm sm:text-lg" title={user.name}>
+            {userInitial}
           </div>
         ) : (
-          <span className="font-medium">Hello, Guest</span>
+          // Placeholder if no user/name
+          <div className="flex items-center justify-center h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-gray-500 text-white font-bold text-sm sm:text-lg">
+            ?
+          </div>
         )}
+        {/* Logout Button */}
         <button
           onClick={handleLogout}
-          className="bg-red-500 hover:bg-red-600 py-2 px-4 rounded"
+          className="bg-red-500 hover:bg-red-600 py-1 px-3 sm:py-2 sm:px-4 rounded text-sm sm:text-base" // Smaller button on mobile
         >
           Logout
         </button>

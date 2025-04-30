@@ -36,8 +36,8 @@ function RegisterForm() {
   };
 
   // Glassmorphism card styling
-  const cardClass =
-    "bg-white/70 backdrop-blur-lg p-8 rounded-3xl shadow-2xl w-full max-w-md border border-white/30 transform transition-all duration-500 hover:scale-105";
+  const cardClass = // Reduced padding on small screens
+    "bg-white/70 backdrop-blur-lg p-6 sm:p-8 rounded-3xl shadow-2xl w-full max-w-md border border-white/30 transform transition-all duration-500 hover:scale-105 mx-4 sm:mx-0"; // Add horizontal margin on smallest screens
 
   const headerClass = "text-2xl font-bold text-center text-gray-800 mb-6";
 

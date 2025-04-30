@@ -1,25 +1,30 @@
 // src/components/SummaryReport.jsx
 import React, { useState } from "react";
-import axios from "axios";
+import api from "../api"; // Import the configured api instance
 
 function SummaryReport({ chartData }) {
   const [summary, setSummary] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null); // Add error state
 
   const handleGetSummary = async () => {
     setLoading(true);
+    setError(null); // Clear previous errors
     try {
-      const response = await axios.post("http://localhost:5000/api/summarize", { text: JSON.stringify(chartData) });
+      // Use the api instance - interceptor attaches the token
+      // Ensure the backend expects { data: chartData }
+      const response = await api.post("/api/summarize", { data: chartData });
       setSummary(response.data.success ? response.data.summary : "Failed to generate summary.");
-    } catch (error) {
-      console.error(error);
-      setSummary("Error generating summary.");
+    } catch (err) { // Use err to avoid conflict with error state
+      console.error(err);
+      setError(err.response?.data?.message || "Error generating summary."); // Set error state
+      setSummary(""); // Clear summary on error
     }
     setLoading(false);
   };
 
   return (
-    <div className="bg-white p-6 rounded shadow-sm">
+    <div className="mt-6 bg-white p-4 md:p-6 rounded shadow-sm"> {/* Add margin-top, adjust padding */}
       <button
         onClick={handleGetSummary}
         disabled={loading}
@@ -27,7 +32,8 @@ function SummaryReport({ chartData }) {
       >
         {loading ? "Generating summary…" : "Get AI Summary"}
       </button>
-      {summary && <p className="mt-4 text-gray-700"><strong>Summary:</strong> {summary}</p>}
+      {error && <p className="mt-2 text-red-500">{error}</p>} {/* Display error message */}
+      {summary && <p className="mt-4 text-gray-700 dark:text-gray-300"><strong>Summary:</strong> {summary}</p>} {/* Added dark mode text */}
     </div>
   );
 }

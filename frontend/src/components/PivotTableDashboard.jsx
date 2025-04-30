@@ -7,7 +7,7 @@ import TableRenderers from "react-pivottable/TableRenderers";
 function PivotTableDashboard({ data }) {
   const [pivotState, setPivotState] = useState({ data });
   return (
-    <div className="mt-6 bg-white p-6 rounded shadow-sm">
+    <div className="mt-6 bg-white p-4 md:p-6 rounded shadow-sm overflow-x-auto"> {/* Allow horizontal scroll */}
       <h2 className="text-xl font-semibold mb-4">Interactive Data Analysis</h2>
       <PivotTableUI
         data={data}

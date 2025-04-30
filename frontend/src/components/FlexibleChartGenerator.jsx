@@ -69,9 +69,38 @@ function FlexibleChartGenerator({ data = [] }) {
 
   let chartData;
   if (chartType === "pie") {
-    const pieColors = labels.map((_, idx) => `hsl(${(idx * 30) % 360}, 70%, 50%)`);
-    chartData = { labels, datasets: [{ ...commonDataset, backgroundColor: pieColors }] };
+    // Aggregate data for Pie chart
+    const aggregatedData = data.reduce((acc, row) => {
+      const label = row[xAxis] || "Unknown";
+      const value = parseFloat(row[yAxis]) || 0;
+      acc[label] = (acc[label] || 0) + value;
+      return acc;
+    }, {});
+
+    // Sort and limit categories
+    const sortedEntries = Object.entries(aggregatedData).sort(([, a], [, b]) => b - a);
+    const topN = 10; // Show top 10 categories
+    let finalLabels = [];
+    let finalValues = [];
+
+    if (sortedEntries.length > topN) {
+      const topEntries = sortedEntries.slice(0, topN);
+      const otherSum = sortedEntries.slice(topN).reduce((sum, [, value]) => sum + value, 0);
+
+      finalLabels = [...topEntries.map(([label]) => label), "Other"];
+      finalValues = [...topEntries.map(([, value]) => value), otherSum];
+    } else {
+      finalLabels = sortedEntries.map(([label]) => label);
+      finalValues = sortedEntries.map(([, value]) => value);
+    }
+
+    const pieColors = finalLabels.map((_, idx) => `hsl(${(idx * 360 / finalLabels.length) % 360}, 70%, 60%)`); // Distribute colors better
+    chartData = {
+      labels: finalLabels,
+      datasets: [{ label: yAxis, data: finalValues, backgroundColor: pieColors }]
+    };
   } else {
+    // Keep original logic for Line and Bar charts
     chartData = {
       labels,
       datasets: [
@@ -101,11 +130,11 @@ function FlexibleChartGenerator({ data = [] }) {
   const renderChart = () => {
     switch (chartType) {
       case "line":
-        return <Line ref={chartRef} data={chartData} />;
+        return <Line ref={chartRef} data={chartData} options={{ maintainAspectRatio: false }} />; // Added maintainAspectRatio
       case "bar":
-        return <Bar ref={chartRef} data={chartData} />;
+        return <Bar ref={chartRef} data={chartData} options={{ maintainAspectRatio: false }} />; // Added maintainAspectRatio
       case "pie":
-        return <Pie ref={chartRef} data={chartData} />;
+        return <Pie ref={chartRef} data={chartData} options={{ maintainAspectRatio: false }} />; // Added maintainAspectRatio
       default:
         return <Line ref={chartRef} data={chartData} />;
     }
@@ -113,30 +142,54 @@ function FlexibleChartGenerator({ data = [] }) {
 
   return (
     <div className="mt-6 bg-white p-6 rounded shadow-sm">
-      <h3 className="text-lg font-semibold mb-3">Chart Preview</h3>
-      <div className="mb-4">
-        <label className="mr-4">
-          Chart Type:
+      <h3 className="text-lg font-semibold mb-4 text-gray-900 dark:text-white">Chart Preview</h3> {/* Added dark mode text */}
+      <div className="mb-4 grid grid-cols-1 sm:grid-cols-3 gap-4 items-center"> {/* Use grid for better alignment */}
+        {/* Chart Type Selection */}
+        <label className="block">
+          Chart Type:{" "}
           <select
             value={chartType}
             onChange={(e) => setChartType(e.target.value)}
-            className="ml-2 border border-gray-300 rounded p-1"
+            className="mt-1 w-full border border-gray-300 dark:border-gray-600 rounded p-1 dark:bg-gray-700 dark:text-gray-200" // Style select
           >
             <option value="line">Line Chart</option>
             <option value="bar">Bar Chart</option>
             <option value="pie">Pie Chart</option>
           </select>
         </label>
-      </div>
-      <div className="mb-4">
-        <p className="text-sm text-gray-600">
+        {/* X-Axis Selection */}
+        <label className="block">
+          X-Axis (Labels):{" "}
+          <select
+            value={xAxis}
+            onChange={(e) => setXAxis(e.target.value)}
+            className="mt-1 w-full border border-gray-300 dark:border-gray-600 rounded p-1 dark:bg-gray-700 dark:text-gray-200" // Style select
+          >
+            {headers.map(header => <option key={header} value={header}>{header}</option>)}
+          </select>
+        </label>
+        {/* Y-Axis Selection */}
+        <label className="block">
+          Y-Axis (Values):{" "}
+          <select
+            value={yAxis}
+            onChange={(e) => setYAxis(e.target.value)}
+            className="mt-1 w-full border border-gray-300 dark:border-gray-600 rounded p-1 dark:bg-gray-700 dark:text-gray-200" // Style select
+          >
+            {headers.map(header => <option key={header} value={header}>{header}</option>)}
+          </select>
+        </label>
+        {/* Moved axis info here */}
+        <div className="text-sm text-gray-600">
+         <p>
           Auto-detected X‑Axis: <strong>{xAxis}</strong>
-        </p>
-        <p className="text-sm text-gray-600">
+         </p>
+         <p>
           Auto-detected Y‑Axis: <strong>{yAxis}</strong>
-        </p>
+         </p>
+        </div>
       </div>
-      <div>{renderChart()}</div>
+      <div className="relative h-64 md:h-96">{renderChart()}</div> {/* Set height for chart container */}
       <button
         onClick={handleDownload}
         className="mt-4 bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded"

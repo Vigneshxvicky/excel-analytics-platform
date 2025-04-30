@@ -21,7 +21,7 @@ function PredictiveAnalytics({ data }) {
   };
 
   return (
-    <div className="mt-6 bg-white p-6 rounded shadow-sm">
+    <div className="mt-6 bg-white p-4 md:p-6 rounded shadow-sm"> {/* Adjust padding */}
       <h2 className="text-xl font-semibold mb-4">Predictive Analytics</h2>
       <button
         onClick={handlePredict}
@@ -32,7 +32,7 @@ function PredictiveAnalytics({ data }) {
       {prediction && (
         <div className="mt-4">
           <h3 className="text-lg font-semibold">Forecast:</h3>
-          <pre className="bg-gray-100 p-3 rounded text-gray-800">
+          <pre className="bg-gray-100 dark:bg-gray-700 p-3 rounded text-gray-800 dark:text-gray-200 overflow-x-auto"> {/* Dark mode, scroll */}
             {JSON.stringify(prediction, null, 2)}
           </pre>
         </div>
