@@ -12,6 +12,7 @@ module.exports = {
       fontFamily: {
         formal: ['"Roboto"', "sans-serif"],
       },
+
     },
   },
   plugins: [],

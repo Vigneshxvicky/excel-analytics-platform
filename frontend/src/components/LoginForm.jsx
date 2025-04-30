@@ -5,7 +5,9 @@ import { useNavigate, Link } from "react-router-dom";
 // Use a named import because jwt-decode doesn't export a default
 import { jwtDecode } from "jwt-decode";
 import "animate.css/animate.min.css";
-import "./AnimatedBackground.css"; // Import our animated background styles
+import ThreeBackground from './ThreeBackground'; // Import the new background component
+// import "./AnimatedBackground.css"; // We'll replace this with Three.js later
+
 
 function LoginForm() {
   const [email, setEmail]             = useState("");
@@ -52,15 +54,15 @@ function LoginForm() {
 
   // Glassmorphism card styling (different styles for user vs. admin)
   const cardClassUser = // Reduced padding on small screens
-    "bg-white/70 backdrop-blur-lg p-6 sm:p-8 rounded-3xl shadow-2xl w-full max-w-md border border-white/30 transform transition-all duration-500 hover:scale-105 mx-4 sm:mx-0"; // Add horizontal margin on smallest screens
+    "bg-white/60 backdrop-blur-md p-6 sm:p-8 rounded-3xl shadow-2xl w-full max-w-md border border-white/20 transition-all duration-500 mx-4 sm:mx-0"; // Slightly more transparent, less blur, removed hover scale
   const cardClassAdmin =
-    "bg-gray-800/70 backdrop-blur-lg p-6 sm:p-8 rounded-3xl shadow-2xl w-full max-w-md border border-white/30 transform transition-all duration-500 hover:scale-105 mx-4 sm:mx-0"; // Add horizontal margin on smallest screens
+    "bg-gray-900/60 backdrop-blur-md p-6 sm:p-8 rounded-3xl shadow-2xl w-full max-w-md border border-white/20 transition-all duration-500 mx-4 sm:mx-0"; // Slightly more transparent, less blur, removed hover scale
   const cardClass = loginType === "admin" ? cardClassAdmin : cardClassUser;
 
   const headerClass = loginType === "admin"
-    ? "text-2xl font-bold text-center text-white mb-6"
+    ? "text-3xl font-bold text-center text-white mb-8" // Slightly larger header, more margin
     : "text-2xl font-bold text-center text-gray-800 mb-6";
-
+    // User header remains the same for contrast on the lighter card
   const labelClass = loginType === "admin"
     ? "block text-sm font-medium text-gray-300"
     : "block text-sm font-medium text-gray-700";
@@ -73,13 +75,25 @@ function LoginForm() {
 
   return (
     <div
-      className={`relative min-h-screen animated-gradient animate__animated animate__fadeIn`}
+      // The main container - ThreeBackground will sit inside this
+      className={`relative min-h-screen flex flex-col items-center justify-center p-4 animate__animated animate__fadeIn overflow-hidden`} // Added overflow-hidden
     >
-      {/* Optional overlay for extra contrast */}
-      <div className="absolute inset-0 bg-black opacity-20"></div>
+      {/* Render the Three.js Background */}
+      <ThreeBackground />
 
-      {/* Login form container */}
-      <div className="relative z-10 flex items-center justify-center min-h-screen">
+      {/* Content Container */}
+      <div className="relative z-10 flex flex-col items-center w-full">
+        {/* Grand Brand Text - Enhanced */}
+        <h1 className="text-6xl sm:text-7xl lg:text-8xl font-extrabold /* Increased size and weight */
+                       bg-gradient-to-r from-purple-600 via-indigo-500 to-blue-500 /* Added gradient */
+                       bg-clip-text text-transparent /* Apply gradient to text */
+                       mb-12 /* Increased margin-bottom */ text-center animate__animated animate__fadeInDown animate__delay-1s" style={{ textShadow: '1px 1px 3px rgba(0, 0, 0, 0.3)' /* Adjusted shadow */ }}>
+          Welcome to Excel Analytics
+        </h1>
+        
+
+
+      <div className="relative z-10 flex items-center w-9/12 justify-center min-h-screen">
         <div className={cardClass}>
           <h2 className={headerClass}>
             {loginType === "admin" ? "Admin Login" : "Login"}
@@ -87,7 +101,7 @@ function LoginForm() {
 
           {error && <p className="mb-4 text-center text-red-600">{error}</p>}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-5"> {/* Increased spacing slightly */}
             {/* Email Field */}
             <div>
               <label htmlFor="email" className={labelClass}>
@@ -121,7 +135,7 @@ function LoginForm() {
             </div>
 
             {/* Login Type Selection */}
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center justify-center space-x-6 pt-2"> {/* Centered and more spacing */}
               <span className={`text-sm font-medium ${textClass}`}>
                 Login as:
               </span>
@@ -133,7 +147,7 @@ function LoginForm() {
                   value="user"
                   checked={loginType === "user"}
                   onChange={() => setLoginType("user")}
-                />
+                /> {/* Adjusted text color based on login type */}
                 <span className="ml-2">User</span>
               </label>
               <label className="inline-flex items-center">
@@ -144,7 +158,7 @@ function LoginForm() {
                   value="admin"
                   checked={loginType === "admin"}
                   onChange={() => setLoginType("admin")}
-                />
+                /> {/* Adjusted text color based on login type */}
                 <span className="ml-2">Admin</span>
               </label>
             </div>
@@ -152,15 +166,15 @@ function LoginForm() {
             {/* Login Button */}
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              className="w-full bg-indigo-600 text-white py-2.5 px-4 rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition duration-300 ease-in-out transform hover:-translate-y-1" // Added subtle hover effect, changed color
             >
               Login
             </button>
           </form>
 
           {/* Divider */}
-          <div className="flex items-center my-6">
-            <div className="flex-grow border-t border-gray-300"></div>
+          <div className="flex items-center my-8"> {/* Increased margin */}
+            <div className={`flex-grow border-t ${loginType === 'admin' ? 'border-gray-600' : 'border-gray-300'}`}></div> {/* Divider color based on type */}
             <span className="mx-4 text-gray-500">OR</span>
             <div className="flex-grow border-t border-gray-300"></div>
           </div>
@@ -169,7 +183,7 @@ function LoginForm() {
           <div>
             <a
               href="http://localhost:5000/auth/google"
-              className="flex items-center justify-center w-full bg-red-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2 transition-transform duration-300"
+              className="flex items-center justify-center w-full bg-red-600 text-white py-2.5 px-4 rounded-lg shadow-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 focus:ring-offset-gray-900 transition duration-300 ease-in-out transform hover:-translate-y-1" // Added subtle hover effect
             >
               <svg
                 className="w-5 h-5 mr-2"
@@ -199,7 +213,7 @@ function LoginForm() {
           </div>
 
           {/* Link to Register */}
-          <div className="mt-4 text-center">
+          <div className="mt-6 text-center"> {/* Increased margin */}
             <p className={textClass}>
               Don&apos;t have an account?{" "}
               <Link to="/register" className="text-blue-600 hover:underline">
@@ -208,6 +222,7 @@ function LoginForm() {
             </p>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

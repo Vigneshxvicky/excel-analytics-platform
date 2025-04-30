@@ -68,7 +68,7 @@ function ChartAnalysisPage() {
       setXAxis("");
       setYAxis("");
     }
-  }, [data]); // Rerun if data changes
+  }, [data, xAxis, yAxis]); // Rerun if data, xAxis, or yAxis changes
 
   // Effect to update chart data when axes or data change
   useEffect(() => {
@@ -88,7 +88,7 @@ function ChartAnalysisPage() {
         const label = row[xAxis] || "Unknown";
         const value = parseFloat(row[yAxis]) || 0;
         acc[label] = (acc[label] || 0) + value;
-        return acc;
+          return acc;
       }, {});
       const sortedEntries = Object.entries(aggregatedData).sort(([, a], [, b]) => b - a);
       const topN = 10;
@@ -117,7 +117,7 @@ function ChartAnalysisPage() {
           tension: 0.1
         }],
       };
-    }
+    } 
 setChartData(newChartData);
 
   }, [data, xAxis, yAxis, chartType]);
@@ -147,7 +147,7 @@ setChartData(newChartData);
     <div className="min-h-screen flex flex-col bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
       <Header /> {/* Include header */}
       <div className="flex-grow flex flex-col p-4 sm:p-6 mt-9 lg:p-8 pt-20 sm:pt-24">
-        {/* Controls Section */}
+        
         <div className="mb-6 bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 items-center">
             {/* Chart Type */}

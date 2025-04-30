@@ -280,109 +280,120 @@ app.get("/api/dashboard/users", verifyToken, async (req, res) => {
 });
 
 // Make Analytics endpoint dynamic (Example: Cumulative User Growth by Month)
-app.get("/api/dashboard/analytics", verifyToken, async (req, res) => {
-    // Optional: Add admin role check
-    try {
-        // Aggregate users by registration month (requires createdAt field from timestamps:true)
-        const timeRange = req.query.timeRange || '30d'; // Default to 30 days
-        let startDate = new Date();
-        let groupByFormat = '%Y-%m-%d'; // Default grouping by day
-        let labelFormat = (date) => date.toISOString().split('T')[0]; // Default label format YYYY-MM-DD
+// app.get("/api/dashboard/analytics", verifyToken, async (req, res) => {
+//     // Optional: Add admin role check
+//     try {
+//         // Aggregate users by registration month (requires createdAt field from timestamps:true)
+//         const timeRange = req.query.timeRange || '30d'; // Default to 30 days
+//         let startDate = new Date();
+//         let groupByFormat = '%Y-%m-%d'; // Default grouping by day
+//         let labelFormat = (date) => date.toISOString().split('T')[0]; // Default label format YYYY-MM-DD
 
-        switch (timeRange) {
-            case '1d':
-                startDate.setDate(startDate.getDate() - 1);
-                groupByFormat = '%Y-%m-%dT%H:00:00.000Z'; // Group by hour
-                labelFormat = (date) => date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }); // HH:MM
-                break;
-            case '7d':
-                startDate.setDate(startDate.getDate() - 7);
-                // Default groupByFormat and labelFormat are fine
-                break;
-            case '30d':
-            default: // Default to 30 days
-                startDate.setDate(startDate.getDate() - 30);
-                // Default groupByFormat and labelFormat are fine
-                break;
-        }
+//         switch (timeRange) {
+//             case '1d':
+//                 startDate.setDate(startDate.getDate() - 1);
+//                 groupByFormat = '%Y-%m-%dT%H:00:00.000Z'; // Group by hour
+//                 labelFormat = (date) => date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }); // HH:MM
+//                 break;
+//             case '7d':
+//                 startDate.setDate(startDate.getDate() - 7);
+//                 // Default groupByFormat and labelFormat are fine
+//                 break;
+//             case '30d':
+//             default: // Default to 30 days
+//                 startDate.setDate(startDate.getDate() - 30);
+//                 // Default groupByFormat and labelFormat are fine
+//                 break;
+//         }
 
-        // --- Aggregate User Registrations ---
-        const userGrowthData = await User.aggregate([
-            { $match: { createdAt: { $gte: startDate } } }, // Filter by date range
-            {
-                $group: {
-                    _id: { $dateToString: { format: groupByFormat, date: "$createdAt" } },
-                    count: { $sum: 1 }
-                }
-            },
-            { $sort: { _id: 1 } } // Sort chronologically
-        ]);
+//         // --- Aggregate User Registrations ---
+//         const userGrowthData = await User.aggregate([
+//             { $match: { createdAt: { $gte: startDate } } }, // Filter by date range
+//             {
+//                 $group: {
+//                     _id: { $dateToString: { format: groupByFormat, date: "$createdAt" } },
+//                     count: { $sum: 1 }
+//                 }
+//             },
+//             { $sort: { _id: 1 } } // Sort chronologically
+//         ]);
 
-        // --- Aggregate File Uploads ---
-        const uploadTrendData = await Upload.aggregate([
-            { $match: { createdAt: { $gte: startDate } } }, // Filter by date range
-            {
-                $group: {
-                    _id: { $dateToString: { format: groupByFormat, date: "$createdAt" } },
-                    count: { $sum: 1 }
-                }
-            },
-            { $sort: { _id: 1 } } // Sort chronologically
-        ]);
+//         // --- Aggregate File Uploads ---
+//         const uploadTrendData = await Upload.aggregate([
+//             { $match: { createdAt: { $gte: startDate } } }, // Filter by date range
+//             {
+//                 $group: {
+//                     _id: { $dateToString: { format: groupByFormat, date: "$createdAt" } },
+//                     count: { $sum: 1 }
+//                 }
+//             },
+//             { $sort: { _id: 1 } } // Sort chronologically
+//         ]);
 
-        // --- Format Data for Chart.js ---
-        // Create a map of all possible labels in the range to ensure continuity
-        const allLabelsMap = new Map();
-        let currentDate = new Date(startDate);
-        const endDate = new Date();
-        endDate.setHours(endDate.getHours() + 1, 0, 0, 0); // Ensure we include the current hour/day
+//         // --- Format Data for Chart.js ---
+//         // Create a map of all possible labels in the range to ensure continuity
+//         const allLabelsMap = new Map();
+//         let currentDate = new Date(startDate);
+//         const endDate = new Date();
+//         endDate.setHours(endDate.getHours() + 1, 0, 0, 0); // Ensure we include the current hour/day
 
-        while (currentDate <= endDate) {
-            const labelKey = new Date(currentDate).toISOString().split(timeRange === '1d' ? ':' : 'T')[0] + (timeRange === '1d' ? ':00:00.000Z' : 'T00:00:00.000Z');
-            // Use a consistent key format for matching, then format the display label
-            const displayLabel = labelFormat(new Date(currentDate));
-            if (!allLabelsMap.has(displayLabel)) { // Avoid duplicate display labels if formatting isn't unique enough per key
-                 allLabelsMap.set(displayLabel, { userCount: 0, uploadCount: 0, sortKey: new Date(currentDate) });
-            }
-            if (timeRange === '1d') {
-              currentDate.setHours(currentDate.getHours() + 1);
-          } else {
-              currentDate.setDate(currentDate.getDate() + 1);
-          }
-      }
+//         while (currentDate <= endDate) {
+//             const labelKey = new Date(currentDate).toISOString().split(timeRange === '1d' ? ':' : 'T')[0] + (timeRange === '1d' ? ':00:00.000Z' : 'T00:00:00.000Z');
+//             // Use a consistent key format for matching, then format the display label
+//             const displayLabel = labelFormat(new Date(currentDate));
+//             if (!allLabelsMap.has(displayLabel)) { // Avoid duplicate display labels if formatting isn't unique enough per key
+//                  allLabelsMap.set(displayLabel, { userCount: 0, uploadCount: 0, sortKey: new Date(currentDate) });
+//             }
+//             if (timeRange === '1d') {
+//               currentDate.setHours(currentDate.getHours() + 1);
+//           } else {
+//               currentDate.setDate(currentDate.getDate() + 1);
+//           }
+//       }
 
-      // Populate counts from aggregated data
-      userGrowthData.forEach(item => {
-          const displayLabel = labelFormat(new Date(item._id));
-          if (allLabelsMap.has(displayLabel)) {
-              allLabelsMap.get(displayLabel).userCount = item.count;
-          }
-      });
-      uploadTrendData.forEach(item => {
-          const displayLabel = labelFormat(new Date(item._id));
-          if (allLabelsMap.has(displayLabel)) {
-              allLabelsMap.get(displayLabel).uploadCount = item.count;
-          }
-      });
+//       // Populate counts from aggregated data
+//       userGrowthData.forEach(item => {
+//           const displayLabel = labelFormat(new Date(item._id));
+//           if (allLabelsMap.has(displayLabel)) {
+//               allLabelsMap.get(displayLabel).userCount = item.count;
+//           }
+//       });
+//       uploadTrendData.forEach(item => {
+//           const displayLabel = labelFormat(new Date(item._id));
+//           if (allLabelsMap.has(displayLabel)) {
+//               allLabelsMap.get(displayLabel).uploadCount = item.count;
+//           }
+//       });
 
-      // Sort the map by date and extract final arrays
-      const sortedLabels = Array.from(allLabelsMap.entries()).sort(([, a], [, b]) => a.sortKey - b.sortKey);
+//       // Sort the map by date and extract final arrays
+//       const sortedLabels = Array.from(allLabelsMap.entries()).sort(([, a], [, b]) => a.sortKey - b.sortKey);
 
-      const finalLabels = sortedLabels.map(([label]) => label);
-      const userDataset = sortedLabels.map(([, data]) => data.userCount);
-      const uploadDataset = sortedLabels.map(([, data]) => data.uploadCount);
+//       const finalLabels = sortedLabels.map(([label]) => label);
+//       const userDataset = sortedLabels.map(([, data]) => data.userCount);
+//       const uploadDataset = sortedLabels.map(([, data]) => data.uploadCount);
 
-      res.json({
-          userGrowth: { labels: finalLabels, dataset: userDataset },
-          uploadTrend: { labels: finalLabels, dataset: uploadDataset }
-      });
+//       res.json({
+//           userGrowth: { labels: finalLabels, dataset: userDataset },
+//           uploadTrend: { labels: finalLabels, dataset: uploadDataset }
+//       });
 
-    } catch (error) {
-        console.error("Error fetching analytics data:", error);
-        res.status(500).json({ success: false, message: 'Error fetching analytics data' });
-    }
-});
+//     } catch (error) {
+//         console.error("Error fetching analytics data:", error);
+//         res.status(500).json({ success: false, message: 'Error fetching analytics data' });
+//     }
+// });
+// In your backend route file (e.g., dashboardRoutes.js)
 
+// Middleware to check if user is admin (Example - Implement based on your needs)
+const isAdmin = (req, res, next) => {
+  if (req.user && req.user.role === 'admin') {
+    next(); // User is admin, proceed
+  } else {
+    res.status(403).json({ message: 'Forbidden: Admin access required' });
+  }
+};
+
+app.get("/api/dashboard/analytics", (req, res) => res.json({ labels: ["Jan", "Feb", "Mar"], dataset: [100, 150, 200] }));
 // Placeholder Endpoints (Add comments indicating they are placeholders)
 // Updated Summarize Endpoint using Gemini
 app.post('/api/summarize', verifyToken, async (req, res) => {

@@ -24,16 +24,16 @@ function SummaryReport({ chartData }) {
   };
 
   return (
-    <div className="mt-6 bg-white p-4 md:p-6 rounded shadow-sm"> {/* Add margin-top, adjust padding */}
+    <div className="mt-6 bg-slate-300 p-4 md:p-6 rounded shadow-sm"> {/* Add margin-top, adjust padding */}
       <button
         onClick={handleGetSummary}
         disabled={loading}
-        className="bg-blue-700 hover:bg-blue-800 text-white py-2 px-4 rounded"
+        className="bg-purple-400 hover:bg-purple-500 text-neutral-800 py-2 px-4 rounded"
       >
         {loading ? "Generating summary…" : "Get AI Summary"}
       </button>
       {error && <p className="mt-2 text-red-500">{error}</p>} {/* Display error message */}
-      {summary && <p className="mt-4 text-gray-700 dark:text-gray-300"><strong>Summary:</strong> {summary}</p>} {/* Added dark mode text */}
+      {summary && <p className="mt-4 text-gray-700 dark:text-zinc-800"><strong>Summary:</strong> {summary}</p>} {/* Added dark mode text */}
     </div>
   );
 }

@@ -24,10 +24,12 @@ const AnalyticsOverview = () => {
   const [chartData, setChartData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null); // Keep it active
+  const [totalUsers, setTotalUsers] = useState(0); // State for total user count
+  const [timeRange, setTimeRange] = useState('30d'); // Add state for time range, default to 30d
   const socketRef = useRef(null); // Use ref for socket instance
 
-
-  // Function to fetch data - reusable
+  // --- Data Processing Function ---
+  // Function to fetch data - now accepts timeRange
   const fetchAnalyticsData = async () => {
     // Keep loading true while fetching new data after initial load? Maybe not needed.
     // setLoading(true);
@@ -36,22 +38,112 @@ const AnalyticsOverview = () => {
       const token = localStorage.getItem('authToken'); // Get token
       if (!token) throw new Error('No auth token found for analytics');
 
-      const response = await axios.get(`${SOCKET_SERVER_URL}/api/dashboard/analytics`, {
+      // Fetch the full user list
+      const response = await axios.get(`${SOCKET_SERVER_URL}/api/dashboard/users`, {
         headers: { Authorization: `Bearer ${token}` } // Add auth header
       });
-      // Check if response.data exists and has the expected properties
-      if (!response.data || typeof response.data.labels === 'undefined' || typeof response.data.dataset === 'undefined') {
-        throw new Error('Invalid data structure received from analytics endpoint');
+
+      // Log the received data structure for debugging
+      console.log("User List API Response Data:", response.data);
+
+      // Check if response.data.users exists and is an array
+      if (!response.data || !response.data.success || !Array.isArray(response.data.users)) {
+        throw new Error('Invalid data structure received from users endpoint');
       }
-      const { labels, dataset } = response.data;
+
+      const users = response.data.users;
+      setTotalUsers(users.length); // Update total user count
+
+      // --- Process user data based on timeRange ---
+      let startDate = new Date();
+      let labelFormat = (date) => date.toISOString().split('T')[0]; // Default label format YYYY-MM-DD
+      let groupByUnit = 'day'; // 'day' or 'hour'
+
+      switch (timeRange) {
+        case '1d':
+          startDate.setDate(startDate.getDate() - 1);
+          labelFormat = (date) => date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: false }); // HH:MM
+          groupByUnit = 'hour'; // Group by hour for 1 day view
+          break;
+        case '7d':
+          startDate.setUTCDate(startDate.getUTCDate() - 7); // Use UTC dates
+          break; // Default group by day
+        case '30d':
+        default: // Default to 30 days
+          startDate.setDate(startDate.getDate() - 30); // Default group by day
+          break;
+      }
+      startDate.setUTCHours(0, 0, 0, 0); // Use UTC hours for start of period
+      console.log(`[Analytics] Start Date (UTC): ${startDate.toISOString()}, Time Range: ${timeRange}, Group By: ${groupByUnit}`);
+
+      // Filter users within the time range
+      const filteredUsers = users.filter(user => user.createdAt && new Date(user.createdAt) >= startDate); // Add check for createdAt existence
+      console.log(`[Analytics] Total Users: ${users.length}, Filtered Users (in range): ${filteredUsers.length}`);
+
+
+      // Group users by day or hour
+      const countsByPeriod = filteredUsers.reduce((acc, user) => {
+        const createdAt = new Date(user.createdAt);
+        // Ensure createdAt is a valid date before processing
+        if (isNaN(createdAt.getTime())) return acc;
+
+        let key;
+        if (groupByUnit === 'hour') {
+          key = new Date(Date.UTC(createdAt.getUTCFullYear(), createdAt.getUTCMonth(), createdAt.getUTCDate(), createdAt.getUTCHours())).toISOString(); // Use UTC components for key
+        } else { // 'day'
+          key = new Date(Date.UTC(createdAt.getUTCFullYear(), createdAt.getUTCMonth(), createdAt.getUTCDate())).toISOString(); // Use UTC components for key
+        }
+        acc[key] = (acc[key] || 0) + 1;
+        return acc;
+      }, {});
+
+      // Log the grouped counts
+      console.log("[Analytics] Counts By Period:", countsByPeriod);
+
+      // Generate labels and cumulative dataset for the period
+      const labels = [];
+      const dataset = []; // This will store the cumulative count for each point in time
+
+      // Start cumulative count at 0 for the selected period
+      let cumulativeCount = 0;
+      let currentDate = new Date(startDate); // Start date (beginning of the period)
+      const loopEndDate = new Date(); // Today's date
+
+      // Adjust loopEndDate based on groupByUnit to ensure we cover the *start* of the last period
+      if (groupByUnit === 'hour') {
+          loopEndDate.setUTCMinutes(0, 0, 0); // Use UTC
+      } else { // day
+          loopEndDate.setUTCHours(0, 0, 0, 0); // Use UTC
+      }
+
+      // If the first label needs a starting point before the first increment
+      // labels.push(labelFormat(new Date(currentDate)));
+      // dataset.push(initialCumulativeCount); // Start the dataset with the initial count
+
+      while (currentDate <= loopEndDate) { // Loop up to the start of the last period
+        labels.push(labelFormat(new Date(currentDate))); // Format the start of the period
+
+        // Key for looking up counts corresponds to the start of the period
+        const key = new Date(Date.UTC(currentDate.getUTCFullYear(), currentDate.getUTCMonth(), currentDate.getUTCDate(), (groupByUnit === 'hour' ? currentDate.getUTCHours() : 0))).toISOString(); // Use UTC components for lookup key
+
+        const countForPeriod = countsByPeriod[key] || 0;
+        cumulativeCount += countForPeriod; // Add users registered *during* this period
+        dataset.push(cumulativeCount); // Push the *cumulative* count
+        // Increment to the start of the next period
+        if (groupByUnit === 'hour') {
+            currentDate.setHours(currentDate.getHours() + 1);
+        } else { // day
+            currentDate.setDate(currentDate.getDate() + 1);
+        } // Note: Local setDate/setHours is okay for iteration control, key generation uses UTC
+      }
 
       const data = {
         labels: labels,
         datasets: [
-          {
-            label: "Cumulative User Growth (Current Year)", // Updated label
+          { // Consider making the label dynamic based on timeRange if needed
+            label: `User Growth During Period`, // Changed label
             data: dataset,
-            backgroundColor: "rgba(54, 162, 235, 0.5)",
+            backgroundColor: "rgba(54, 162, 235, 0.2)", // Lighter fill
             borderColor: "#36A2EB",
             borderWidth: 2,
             fill: true,
@@ -71,9 +163,12 @@ const AnalyticsOverview = () => {
     }
   };
 
+  // Effect for initial fetch and socket connection
   useEffect(() => {
     // Initial fetch
     fetchAnalyticsData();
+
+    // --- Socket.IO Setup (remains the same) ---
 
     // Setup Socket.IO connection
     // Disconnect previous socket if it exists (e.g., due to HMR)
@@ -87,8 +182,8 @@ const AnalyticsOverview = () => {
       console.log('Socket connected for analytics updates');
     });
 
-    // Listen for updates (e.g., when stats change, indicating new user/upload)
-    socket.on('statsUpdate', () => {
+    // Listen for new user event
+    socket.on('newUser', () => { // Changed from 'statsUpdate'
       console.log('Received statsUpdate event, refetching analytics data...');
       fetchAnalyticsData(); // Refetch data when stats are updated
     });
@@ -104,7 +199,15 @@ const AnalyticsOverview = () => {
         socketRef.current = null;
       }
     };
-  }, []); // Empty dependency array: run only on mount and unmount
+  }, []); // Run only on mount and unmount for socket setup
+
+  // Effect to refetch data when timeRange changes
+  useEffect(() => {
+    // Don't refetch on initial load if the first useEffect already did
+    if (!loading) {
+        fetchAnalyticsData();
+    }
+  }, [timeRange, loading]); // Add loading to prevent double fetch on mount
 
   // Render states
   if (loading) return <p className="text-center mt-4">Loading analytics data...</p>;
@@ -114,6 +217,35 @@ const AnalyticsOverview = () => {
       <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-4">
         Analytics Overview
       </h2>
+      {/* Time Range Selection Buttons */}
+      <div className="mb-4 flex justify-center space-x-2">
+        <button
+          onClick={() => setTimeRange('1d')}
+          className={`px-3 py-1 rounded text-sm ${timeRange === '1d' ? 'bg-blue-600 text-white' : 'bg-gray-200 dark:bg-gray-600 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-500'}`}
+        >
+          1 Day
+        </button>
+        <button
+          onClick={() => setTimeRange('7d')}
+          className={`px-3 py-1 rounded text-sm ${timeRange === '7d' ? 'bg-blue-600 text-white' : 'bg-gray-200 dark:bg-gray-600 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-500'}`}
+        >
+          7 Days
+        </button>
+        <button
+          onClick={() => setTimeRange('30d')}
+          className={`px-3 py-1 rounded text-sm ${timeRange === '30d' ? 'bg-blue-600 text-white' : 'bg-gray-200 dark:bg-gray-600 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-500'}`}
+        >
+          30 Days
+        </button>
+      </div>
+      {/* Display Total Users */}
+      {chartData && chartData.datasets && chartData.datasets[0]?.data?.length > 0 && (
+        <div className="mb-4 text-center"> {/* Use totalUsers state */}
+          <span className="text-lg font-semibold text-gray-700 dark:text-gray-300">Total Users: </span> {/* Changed label slightly */}
+          <span className="text-2xl font-bold text-blue-600 dark:text-blue-400"> {totalUsers}
+          </span>
+        </div>
+      )}
       <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
         {error && <p className="text-center my-4 text-red-500">Error: {error}</p>}
         {chartData ? (
@@ -127,3 +259,4 @@ const AnalyticsOverview = () => {
 };
 
 export default AnalyticsOverview;
+  

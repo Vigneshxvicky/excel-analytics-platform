@@ -1,13 +1,14 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
+import ThreeBackground from './ThreeBackground'; // Import the background
+import "animate.css/animate.min.css"; // Import animate.css
 
 function RegisterForm() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [role, setRole] = useState("user");
-  const [error, setError] = useState("");
+  const [error, setError] = useState(""); // Role state removed
 
   const navigate = useNavigate();
 
@@ -20,7 +21,7 @@ function RegisterForm() {
         name,
         email,
         password,
-        role,
+        role: 'user', // Default role to 'user'
       });
 
       if (response.data.success) {
@@ -35,34 +36,45 @@ function RegisterForm() {
     }
   };
 
-  // Glassmorphism card styling
-  const cardClass = // Reduced padding on small screens
-    "bg-white/70 backdrop-blur-lg p-6 sm:p-8 rounded-3xl shadow-2xl w-full max-w-md border border-white/30 transform transition-all duration-500 hover:scale-105 mx-4 sm:mx-0"; // Add horizontal margin on smallest screens
+  // --- Styling adapted from LoginForm (User variant) ---
+  const cardClass = "backdrop-blur-lg p-6 sm:p-10 rounded-3xl shadow-xl w-full max-w-2xl border bg-white/70 border-white/30 transition-all duration-500 mx-4 sm:mx-0"; // Changed max-w-xl to max-w-2xl
 
-  const headerClass = "text-2xl font-bold text-center text-gray-800 mb-6";
+  const headerClass = "text-3xl font-semibold text-center text-gray-800 mb-8"; // Matched size/margin from LoginForm
 
-  const labelClass = "block text-sm font-medium text-gray-700";
+  const labelClass = "block text-sm font-medium text-gray-700 mb-1"; // Added margin-bottom
 
-  const inputClass =
-    "mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500";
+  const inputClass = "mt-1 block w-full px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 focus:bg-white transition-colors"; // Added focus background
 
   const textClass = "text-gray-600";
+  const linkClass = "text-blue-600 hover:text-blue-800";
 
   return (
+    // --- Main Container ---
     <div
-      className={`relative min-h-screen animated-gradient animate__animated animate__fadeIn`}
+      className={`relative min-h-screen flex flex-col items-center justify-center p-4 animate__animated animate__fadeIn overflow-hidden`} // Matched LoginForm structure
     >
-      {/* Optional overlay for extra contrast */}
-      <div className="absolute inset-0 bg-black opacity-20"></div>
+      {/* Render the Three.js Background */}
+      <ThreeBackground />
+
+      {/* --- Content Container (Holds Heading and Form Card) --- */}
+      <div className="relative z-10 flex flex-col items-center w-full">
+        {/* Grand Brand Text - Using "Register" */}
+        <h1 className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight
+                       bg-gradient-to-r from-blue-500 via-teal-400 to-green-400 /* Different gradient for Register */
+                       bg-clip-text text-transparent
+                       mb-12 text-center animate__animated animate__fadeInDown animate__delay-0.5s" /* Adjusted animation/delay */
+                       style={{ textShadow: '2px 2px 5px rgba(0, 0, 0, 0.30)' }}>
+          Create Your Account
+        </h1>
 
       {/* Register form container */}
-      <div className="relative z-10 flex items-center justify-center min-h-screen">
+      <div className="relative z-10 flex items-center w-5/6 justify-center min-h-screen">
         <div className={cardClass}>
           <h2 className={headerClass}>Register</h2>
 
           {error && <p className="mb-4 text-center text-red-600">{error}</p>}
 
-          <form onSubmit={handleRegister} className="space-y-4">
+          <form onSubmit={handleRegister} className="space-y-5"> {/* Matched spacing */}
             {/* Name Field */}
             <div>
               <label htmlFor="name" className={labelClass}>
@@ -111,28 +123,14 @@ function RegisterForm() {
               />
             </div>
 
-            {/* Role Selection */}
-            <div>
-              <label htmlFor="role" className={labelClass}>
-                Role
-              </label>
-              <select
-                id="role"
-                value={role}
-                onChange={(e) => setRole(e.target.value)}
-                className={inputClass}
-              >
-                <option value="user">User</option>
-                <option value="admin">Admin</option>
-              </select>
-            </div>
+            {/* Role Selection Removed */}
 
             {/* Register Button */}
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              className="w-full text-white py-2.5 px-4 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition duration-300 ease-in-out transform hover:-translate-y-0.5 hover:shadow-lg bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 focus:ring-offset-gray-100" // Matched Login button style (user)
             >
-              Register
+              Create Account
             </button>
           </form>
 
@@ -140,14 +138,14 @@ function RegisterForm() {
           <div className="flex items-center my-6">
             <div className="flex-grow border-t border-gray-300"></div>
             <span className="mx-4 text-gray-500">OR</span>
-            <div className="flex-grow border-t border-gray-300"></div>
+            <div className="flex-grow border-t border-gray-300"></div> {/* Matched divider style */}
           </div>
 
           {/* Google Register Button */}
           <div>
             <a
               href="http://localhost:5000/auth/google"
-              className="flex items-center justify-center w-full bg-red-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2"
+              className="flex items-center justify-center w-full py-2.5 px-4 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-offset-2 transition duration-300 ease-in-out transform hover:-translate-y-0.5 hover:shadow-lg bg-white hover:bg-gray-50 text-gray-700 focus:ring-blue-500 focus:ring-offset-gray-100 border border-gray-300" // Matched Google button style (user)
             >
               <svg
                 className="w-5 h-5 mr-2"
@@ -172,15 +170,15 @@ function RegisterForm() {
                 />
                 <path fill="none" d="M0 0h48v48H0z" />
               </svg>
-              Sign in with Google
+              Sign up with Google
             </a>
           </div>
 
           {/* Link to Login */}
-          <div className="mt-4 text-center">
-            <p className={textClass}>
+          <div className="mt-8 text-center"> {/* Increased margin */}
+            <p className={`text-sm ${textClass}`}> {/* Adjusted size */}
               Already have an account?{" "}
-              <Link to="/login" className="text-blue-600 hover:underline">
+              <Link to="/login" className={`${linkClass} hover:underline font-medium`}> {/* Dynamic link color */}
                 Login
               </Link>
             </p>
@@ -188,6 +186,7 @@ function RegisterForm() {
         </div>
       </div>
     </div>
+    </div> // Closing tag for the main content container
   );
 }
 

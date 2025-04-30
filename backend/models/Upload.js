@@ -12,7 +12,7 @@ const UploadSchema = new mongoose.Schema({
 // Apply this index ONLY to documents where the 'user' field is null
 UploadSchema.index(
     { createdAt: 1 },
-    { expireAfterSeconds: 3 * 24 * 60 * 60, partialFilterExpression: { user: null } }
+    { expireAfterSeconds: 1 * 24 * 60 * 60, partialFilterExpression: { user: null } }
 );
 
 module.exports = mongoose.model('Upload', UploadSchema);
