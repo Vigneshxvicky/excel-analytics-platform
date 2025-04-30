@@ -1,6 +1,6 @@
 require("dotenv").config();
 const express = require("express");
-const cors = require("cors");
+// const cors = require("cors");
 const multer = require("multer");
 const XLSX = require("xlsx");
 const mongoose = require("mongoose");
@@ -20,9 +20,9 @@ const app = express();
 const cors = require('cors');
 app.use(cors({ origin: 'https://excel-analytics-platform-frontend.onrender.com' }));
 app.use(express.json());
-res.setHeader('Access-Control-Allow-Origin', 'https://excel-analytics-platform-frontend.onrender.com');
-res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+// res.setHeader('Access-Control-Allow-Origin', 'https://excel-analytics-platform-frontend.onrender.com');
+// res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+// res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 // Setup Server & WebSocket
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
