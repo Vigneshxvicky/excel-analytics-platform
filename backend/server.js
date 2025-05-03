@@ -102,6 +102,16 @@ mongoose.connection.once("open", () => {
             // Also update stats when a new user is added
             broadcastStats(io);
         }
+        // Optional: Handle updates and deletes if needed for real-time UI changes
+        if (change.operationType === "update") {
+            // Fetch the updated user document to get necessary fields
+            User.findById(change.documentKey._id, 'name email role googleId createdAt').then(updatedUser => {
+                if (updatedUser) io.emit("userUpdated", updatedUser);
+            });
+        }
+        if (change.operationType === "delete") {
+            io.emit("userDeleted", change.documentKey._id); // Emit the ID of the deleted user
+        }
     });
 });
 
@@ -269,16 +279,49 @@ app.get("/auth/google/callback", passport.authenticate("google", { failureRedire
 });
 
 // Admin Dashboard API Routes
-// Fetch actual users for the initial load
+// Fetch users for the User Management page
 app.get("/api/dashboard/users", verifyToken, async (req, res) => {
-  // Optional: Add role check to ensure only admins can access
-  // if (req.user.role !== 'admin') {
-  //     return res.status(403).json({ success: false, message: 'Forbidden' });
-  // }
-  const users = await User.find({}, 'name email role googleId'); // Select specific fields, exclude password
-  res.json({ success: true, users });
-});
-
+    try {
+      // Select specific fields, exclude password, sort by creation date
+      const users = await User.find({}, 'name email role googleId createdAt').sort({ createdAt: -1 });
+      res.json({ success: true, users });
+    } catch (error) {
+      console.error("Error fetching users for admin:", error);
+      res.status(500).json({ success: false, message: 'Error fetching user list' });
+    }
+  });
+  
+  // Update User Role
+  app.put("/api/dashboard/users/:userId/role", verifyToken, async (req, res) => {
+      const { userId } = req.params;
+      const { role } = req.body;
+  
+      if (!role || !['user', 'admin'].includes(role)) {
+          return res.status(400).json({ success: false, message: 'Invalid role specified.' });
+      }
+  
+      try {
+          const updatedUser = await User.findByIdAndUpdate(userId, { role }, { new: true, select: 'name email role googleId createdAt' }); // Return updated doc, select fields
+          if (!updatedUser) {
+              return res.status(404).json({ success: false, message: 'User not found.' });
+          }
+          // No need to emit 'userUpdated' here, the MongoDB change stream handles it.
+          res.json({ success: true, message: 'User role updated successfully.', user: updatedUser });
+      } catch (error) {
+          console.error("Error updating user role:", error);
+          res.status(500).json({ success: false, message: 'Error updating user role.' });
+      }
+  });
+  
+  // Delete User
+  app.delete("/api/dashboard/users/:userId", verifyToken, async (req, res) => {
+      const { userId } = req.params;
+      // Optional: Prevent admin from deleting themselves?
+      // if (req.user.userId === userId) return res.status(400).json({ message: "Cannot delete self." });
+      await User.findByIdAndDelete(userId);
+      // No need to emit 'userDeleted' here, the MongoDB change stream handles it.
+      res.json({ success: true, message: 'User deleted successfully.' });
+  });
 // Make Analytics endpoint dynamic (Example: Cumulative User Growth by Month)
 // app.get("/api/dashboard/analytics", verifyToken, async (req, res) => {
 //     // Optional: Add admin role check
