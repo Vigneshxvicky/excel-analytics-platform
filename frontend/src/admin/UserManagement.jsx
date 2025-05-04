@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 import api from "../api"; // Import the configured axios instance
 import io from "socket.io-client"; // Import socket.io client
 import { toast, ToastContainer } from "react-toastify"; // Optional: For notifications
+import { FaEye, FaEyeSlash } from "react-icons/fa"; // Import eye icons
+
 import "react-toastify/dist/ReactToastify.css"; // Optional: Toastify CSS
 const SOCKET_SERVER_URL =
   "https://excel-analytics-platform-backend.onrender.com"; // Your backend URL
@@ -11,6 +13,20 @@ const UserManagement = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true); // Keep loading state
   const [error, setError] = useState(null);
+  const [revealedEmails, setRevealedEmails] = useState({}); // State to track revealed emails
+
+  // Helper function to obfuscate email
+  const obfuscateEmail = (email) => {
+    if (!email || !email.includes("@")) return email; // Return original if invalid
+    const [localPart, domain] = email.split("@");
+    if (localPart.length <= 3) {
+      return `${localPart[0]}***@${domain}`; // Handle very short local parts
+    }
+    const start = localPart.substring(0, 3); // Show first 3 chars
+    const end = localPart.substring(localPart.length - 1); // Show last char
+    const masked = "X".repeat(localPart.length - 4); // Mask the middle
+    return `${start}${masked}${end}@${domain}`;
+  };
 
   useEffect(() => {
     // 1. Fetch initial user list
@@ -76,6 +92,12 @@ const UserManagement = () => {
       socket.disconnect();
     };
   }, []); // Empty dependency array ensures this runs only once on mount
+  
+  // Toggle email visibility
+  const toggleEmailVisibility = (userId) => {
+    setRevealedEmails((prev) => ({ ...prev, [userId]: !prev[userId] }));
+  };
+
   // Handler for changing user role
   const handleRoleChange = async (userId, newRole) => {
     try {
@@ -188,7 +210,20 @@ const UserManagement = () => {
                       {user.name}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
-                      {user.email}
+                      <div className="flex items-center space-x-2">
+                        <span>
+                          {revealedEmails[user._id]
+                            ? user.email
+                            : obfuscateEmail(user.email)}
+                        </span>
+                        <button
+                          onClick={() => toggleEmailVisibility(user._id)}
+                          className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
+                          aria-label={revealedEmails[user._id] ? "Hide email" : "Show email"}
+                        >
+                          {revealedEmails[user._id] ? <FaEyeSlash /> : <FaEye />}
+                        </button>
+                      </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 capitalize">
                       {user.role}
