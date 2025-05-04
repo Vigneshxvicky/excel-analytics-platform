@@ -179,6 +179,7 @@ import AdminDashboard from "./admin/AdminDashboard";
 
 // Import ThemeProvider (for dark/light mode)
 import { ThemeProvider, ThemeContext } from "./context/ThemeContext"; // Import ThemeContext
+import AboutUs from "./components/AboutUs";
 
 /*
   DashboardWrapper:
@@ -222,7 +223,7 @@ const DashboardWrapper = ({ fileData = [], handleFileUploaded }) => {
       {/* Header */}
       <header className="relative z-10 flex items-center justify-between p-6">
         <div className="text-white text-3xl font-extrabold drop-shadow-lg">
-          Excel Analysis
+          V i z X c e L
         </div>
 
         {/* Right side container for toggle and nav */}
@@ -255,7 +256,7 @@ const DashboardWrapper = ({ fileData = [], handleFileUploaded }) => {
           className="w-1/3 lg:w-1/4 h-screen bg-gradient-to-b from-purple-800 to-indigo-800 text-white p-8"
           style={{ clipPath: "polygon(0 0, 100% 0, 80% 100%, 0% 100%)" }}
         >
-          <h2 className="text-4xl font-bold mb-8 drop-shadow-lg">Menu</h2>
+          <h2 className="text-4xl font-bold mb-8   drop-shadow-lg">Menu</h2>
           <nav className="space-y-6">
             <a
               href="#upload"
@@ -274,6 +275,12 @@ const DashboardWrapper = ({ fileData = [], handleFileUploaded }) => {
               className="block px-4 py-2 rounded hover:bg-indigo-700 transition"
             >
               Upload History
+            </a>
+            <a
+              href="/Aboutus"
+              className="block px-4 py-2 rounded hover:bg-indigo-700 transition"
+            >
+              About Us
             </a>
           </nav>
         </aside>
@@ -402,7 +409,13 @@ function App() {
               </ProtectedAdminRoute>
             }
           />
-
+          <Route 
+          path="/Aboutus"
+          element={
+          <ProtectedRoute>
+            <AboutUs/>
+          </ProtectedRoute>
+        }/>
           <Route path="*" element={<Navigate to="/login" />} />
         </Routes>
       </BrowserRouter>

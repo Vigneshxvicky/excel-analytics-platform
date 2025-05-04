@@ -73,7 +73,6 @@ const UserManagement = () => {
       toast.info(`New user registered: ${newUser.name}`); // Optional notification
     });
 
-    // TODO: Add listeners for 'userUpdated' and 'userDeleted' if implemented in backend
     // Listen for user updates (e.g., role change)
     socket.on("userUpdated", (updatedUser) => {
       console.log("User updated received:", updatedUser);
@@ -83,6 +82,15 @@ const UserManagement = () => {
         )
       );
     });
+
+    // Listen for user deletions
+    socket.on("userDeleted", (deletedUserId) => {
+        console.log("User deleted received:", deletedUserId);
+        setUsers((prevUsers) => prevUsers.filter((user) => user._id !== deletedUserId));
+        toast.warn(`A user was deleted.`); // Optional notification
+    });
+
+
     socket.on("disconnect", () => {
       console.log("Socket disconnected");
     });
@@ -92,7 +100,7 @@ const UserManagement = () => {
       socket.disconnect();
     };
   }, []); // Empty dependency array ensures this runs only once on mount
-  
+
   // Toggle email visibility
   const toggleEmailVisibility = (userId) => {
     setRevealedEmails((prev) => ({ ...prev, [userId]: !prev[userId] }));
@@ -108,6 +116,7 @@ const UserManagement = () => {
       console.error("Error updating role:", err);
       toast.error(err.response?.data?.message || "Failed to update role."); // Optional error notification
       // Optionally revert the dropdown if the API call fails and no socket update occurs
+      // You might need to refetch users or handle state more carefully here if socket fails
     }
   };
 
@@ -121,8 +130,9 @@ const UserManagement = () => {
       try {
         await api.delete(`/api/dashboard/users/${userId}`);
         toast.success(`User "${userName}" deleted.`); // Optional success notification
-        // State update will be handled by the 'userDeleted' socket event
-        setUsers((prev) => prev.filter((user) => user._id !== userId)); // Optimistic UI update
+        // Optimistic UI update (remove user immediately)
+        // If the socket connection is reliable, you might rely solely on the 'userDeleted' event
+        setUsers((prev) => prev.filter((user) => user._id !== userId));
       } catch (err) {
         console.error("Error deleting user:", err);
         toast.error(err.response?.data?.message || "Failed to delete user."); // Optional error notification
@@ -159,6 +169,12 @@ const UserManagement = () => {
                 scope="col"
                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
               >
+                #
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+              >
                 Name
               </th>
               <th
@@ -177,13 +193,25 @@ const UserManagement = () => {
                 scope="col"
                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
               >
-                Registered
+                Login Type
               </th>
               <th
                 scope="col"
                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
               >
-                Actions
+                Change Role
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+              >
+                Registered Date
+              </th>
+              <th
+                scope="col"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+              >
+                Delete
               </th>
             </tr>
           </thead>
@@ -191,7 +219,7 @@ const UserManagement = () => {
             {users.length === 0 && (
               <tr>
                 <td
-                  colSpan="5"
+                  colSpan="8" // Increased colspan
                   className="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400"
                 >
                   No users found.
@@ -199,13 +227,16 @@ const UserManagement = () => {
               </tr>
             )}
             {users.map(
-              (user) =>
+              (user, index) => // Add index parameter here
                 user &&
                 user._id && ( // Add checks for user and user._id
                   <tr
-                    key={user._id || user.email}
+                    key={user._id} // Use _id as key
                     className="hover:bg-gray-100 dark:hover:bg-gray-700"
                   >
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                      {index + 1} {/* Display index + 1 as serial number */}
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                       {user.name}
                     </td>

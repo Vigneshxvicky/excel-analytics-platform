@@ -91,7 +91,8 @@ function LoginForm() {
         {/* Grand Brand Text - Enhanced */}
         <h1
           className="text-6xl sm:text-7xl lg:text-8xl font-extrabold /* Increased size and weight */
-                       bg-gradient-to-r from-purple-600 via-indigo-500 to-blue-500 /* Added gradient */
+                       bg-gradient-to-r from-amber-800 via-yellow-500 to-amber-300
+ /* Added gradient */
                        bg-clip-text text-transparent /* Apply gradient to text */
                        mb-12 /* Increased margin-bottom */ text-center animate__animated animate__fadeInDown animate__delay-1s"
           style={{

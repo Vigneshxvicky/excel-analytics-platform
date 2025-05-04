@@ -31,7 +31,7 @@ function Header({ onMenuToggle }) { // Accept onMenuToggle prop
                         &larr; Back to Dashboard
                     </Link>
                 </div>
-        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-center pl-80   sm:text-left">Excel Analytics</h1>
+        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-center pl-80   sm:text-left">VizXcel</h1>
       </div>
       <div className="flex items-center space-x-4 sm:space-x-6">
         {/* Dark Mode Toggle Button */}
