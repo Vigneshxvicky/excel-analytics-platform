@@ -50,19 +50,25 @@ function FileUpload({ onFileUploaded }) {
 
     try {
       const token = localStorage.getItem("authToken"); // Authentication token if needed
-      const response = await axios.post("http://localhost:5000/api/upload", formData, {
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      });
+      const response = await axios.post(
+        "https://excel-analytics-platform-backend.onrender.com/api/upload",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
       console.log("File upload response:", response.data);
       alert("File uploaded successfully!");
 
       // Pass the uploaded file data back
       const uploadedData =
-        response.data && response.data.data ? response.data.data : response.data;
+        response.data && response.data.data
+          ? response.data.data
+          : response.data;
       onFileUploaded(uploadedData || []);
     } catch (error) {
       console.error("Error uploading file:", error);
@@ -107,7 +113,9 @@ function FileUpload({ onFileUploaded }) {
         onClick={uploadFile}
         disabled={uploading || !selectedFile}
         className={`px-6 py-3 font-semibold text-white rounded-lg transition ${
-          uploading ? "bg-gray-400 cursor-not-allowed" : "bg-green-500 hover:bg-green-600"
+          uploading
+            ? "bg-gray-400 cursor-not-allowed"
+            : "bg-green-500 hover:bg-green-600"
         }`}
       >
         {uploading ? "Uploading..." : "Upload File"}

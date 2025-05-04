@@ -11,8 +11,13 @@ function PredictiveAnalytics({ data }) {
     setLoading(true);
     setError(null);
     try {
-      const response = await axios.post("http://localhost:5000/api/predict", { data });
-      setPrediction(response.data.success ? response.data.prediction : "Prediction failed.");
+      const response = await axios.post(
+        "https://excel-analytics-platform-backend.onrender.com/api/predict",
+        { data }
+      );
+      setPrediction(
+        response.data.success ? response.data.prediction : "Prediction failed."
+      );
     } catch (err) {
       console.error(err);
       setError("Prediction error.");
@@ -21,7 +26,9 @@ function PredictiveAnalytics({ data }) {
   };
 
   return (
-    <div className="mt-6 bg-white p-4 md:p-6 rounded shadow-sm"> {/* Adjust padding */}
+    <div className="mt-6 bg-white p-4 md:p-6 rounded shadow-sm">
+      {" "}
+      {/* Adjust padding */}
       <h2 className="text-xl font-semibold mb-4">Predictive Analytics</h2>
       <button
         onClick={handlePredict}
@@ -32,7 +39,9 @@ function PredictiveAnalytics({ data }) {
       {prediction && (
         <div className="mt-4">
           <h3 className="text-lg font-semibold">Forecast:</h3>
-          <pre className="bg-gray-100 dark:bg-gray-700 p-3 rounded text-gray-800 dark:text-gray-200 overflow-x-auto"> {/* Dark mode, scroll */}
+          <pre className="bg-gray-100 dark:bg-gray-700 p-3 rounded text-gray-800 dark:text-gray-200 overflow-x-auto">
+            {" "}
+            {/* Dark mode, scroll */}
             {JSON.stringify(prediction, null, 2)}
           </pre>
         </div>
