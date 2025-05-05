@@ -327,8 +327,8 @@ const DashboardWrapper = ({ fileData = [], handleFileUploaded }) => {
                 </div>
                 {/* Grid for Summary and Export */}
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    {/* Apply dark mode styles to the container div */}
-                    <div className="bg-white dark:bg-gray-800 bg-opacity-80 dark:bg-opacity-80 backdrop-blur-md rounded-xl shadow-2xl p-6 transform transition duration-300 hover:scale-105"><SummaryReport chartData={fileData} /></div>
+                    {/* Apply dark mode styles to the container div
+                    <div className="bg-white dark:bg-gray-800 bg-opacity-80 dark:bg-opacity-80 backdrop-blur-md rounded-xl shadow-2xl p-6 transform transition duration-300 hover:scale-105"><SummaryReport chartData={fileData} /></div> */}
                     {/* Apply dark mode styles to the container div */}
                     <div className="bg-white dark:bg-gray-800 bg-opacity-80 dark:bg-opacity-80 backdrop-blur-md rounded-xl shadow-2xl p-6 transform transition duration-300 hover:scale-105"><ExportCSV data={fileData} filename="uploaded-data.csv" /></div>
                 </div>
