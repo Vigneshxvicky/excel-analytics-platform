@@ -23,7 +23,7 @@ function LoginForm() {
 
     try {
       const response = await axios.post(
-        "https://excel-analytics-platform-backend.onrender.com/api/login",
+        "https://excel-analytics-platform-backend.onrender.com/api/login", // Changed to local URL
         {
           email,
           password,
@@ -90,7 +90,7 @@ function LoginForm() {
       <div className="relative z-10 flex flex-col items-center w-full">
         {/* Grand Brand Text - Enhanced */}
         <h1
-          className="text-6xl sm:text-7xl lg:text-8xl font-extrabold /* Increased size and weight */
+          className="text-4xl sm:text-6xl lg:text-8xl font-extrabold /* Responsive text size */
                        bg-gradient-to-r from-amber-800 via-yellow-500 to-amber-300
  /* Added gradient */
                        bg-clip-text text-transparent /* Apply gradient to text */
@@ -102,7 +102,9 @@ function LoginForm() {
           Welcome to Excel Analytics
         </h1>
 
-        <div className="relative z-10 flex items-center w-9/12 justify-center min-h-screen">
+        <div className="relative z-10 flex items-center w-full sm:w-9/12 justify-center">
+          {" "}
+          {/* Adjusted width for smaller screens */}
           <div className={cardClass}>
             <h2 className={headerClass}>
               {loginType === "admin" ? "Admin Login" : "Login"}

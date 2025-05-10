@@ -43,6 +43,7 @@ function FlexibleChartGenerator({ data = [] }) { // Added default value for data
   // const [bubbleSizeColumn, setBubbleSizeColumn] = useState(''); // State for bubble size axis - REMOVED
   const [chartConfig, setChartConfig] = useState(null);
   const [plotlyConfig, setPlotlyConfig] = useState(null); // State for Plotly config
+  const [chartGenerationError, setChartGenerationError] = useState(''); // State for errors
 
   // --- Get Column Names ---
   const columns = getColumnNames(data);
@@ -106,6 +107,11 @@ function FlexibleChartGenerator({ data = [] }) { // Added default value for data
     } else { // Clear config if data/axes are invalid
       setChartConfig(null);
       setPlotlyConfig(null);
+      if (data && data.length > 0 && (!xAxisColumn || !yAxisColumn || (is3D && !zAxisColumn))) {
+        setChartGenerationError("Please select valid X, Y" + (is3D ? ", and Z" : "") + " axes.");
+      } else {
+        setChartGenerationError(''); // Clear error if data itself is missing
+      }
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, chartType, xAxisColumn, yAxisColumn, zAxisColumn]); // Removed bubbleSizeColumn dependency
@@ -114,6 +120,7 @@ function FlexibleChartGenerator({ data = [] }) { // Added default value for data
   const generateChartConfig = () => {
     setChartConfig(null); // Clear previous configs
     setPlotlyConfig(null);
+    setChartGenerationError(''); // Clear previous errors
 
     const xData = getColumnData(data, xAxisColumn);
     const yData = getColumnData(data, yAxisColumn);
@@ -123,7 +130,7 @@ function FlexibleChartGenerator({ data = [] }) { // Added default value for data
 
     if (!xData.length || !yData.length) {
       console.error("Invalid data for selected axes.");
-      // Optionally set an error state to display to the user
+      setChartGenerationError("Invalid data for selected X and Y axes. Please check your selections.");
       return;
     }
 
@@ -131,6 +138,7 @@ function FlexibleChartGenerator({ data = [] }) { // Added default value for data
     if (is3D) {
         if (!zAxisColumn || !zData.length) {
             console.error("Z-axis column is required for 3D plots.");
+            setChartGenerationError("A valid Z-axis column is required for 3D plots.");
             return;
         }
 
@@ -254,7 +262,11 @@ function FlexibleChartGenerator({ data = [] }) { // Added default value for data
 
   // --- Render Logic ---
   const renderChart = () => {
-    const is3DType = ['scatter3d', 'line3d', 'surface'].includes(chartType); // Updated list
+    const is3DType = ['scatter3d', 'line3d', 'surface'].includes(chartType);
+
+    if (chartGenerationError) {
+      return <p className="text-center text-red-500 dark:text-red-400">{chartGenerationError}</p>;
+    }
 
     if (is3DType && plotlyConfig) {
       return (
@@ -267,13 +279,14 @@ function FlexibleChartGenerator({ data = [] }) { // Added default value for data
         />
       );
     }
+    // This condition might be redundant if chartGenerationError covers it, but kept for clarity
     if (is3DType && !plotlyConfig) {
-        const message = "Select valid X, Y, and Z axes."; // Generic message
+        const message = "Select valid X, Y, and Z axes for the 3D plot.";
         return <p className="text-center text-gray-500 dark:text-gray-400">{message}</p>;
     }
 
     if (!is3DType && !chartConfig) {
-      return <p className="text-center text-gray-500 dark:text-gray-400">Select axes to generate chart.</p>;
+      return <p className="text-center text-gray-500 dark:text-gray-400">Select X and Y axes to generate the 2D chart.</p>;
     }
 
     // Render Chart.js components
@@ -299,7 +312,7 @@ function FlexibleChartGenerator({ data = [] }) { // Added default value for data
     return (
         <div className="bg-white dark:bg-gray-800 p-4 rounded shadow">
             <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">Generate Chart</h3>
-            <p className="text-gray-700 dark:text-gray-300">No data available to display.</p>
+            <p className="text-gray-700 dark:text-gray-300">No data available to display. Please upload a file.</p>
         </div>
     );
   }
@@ -309,16 +322,16 @@ function FlexibleChartGenerator({ data = [] }) { // Added default value for data
 
   return (
     <div className="bg-white dark:bg-gray-800 p-4 rounded shadow"> {/* Added dark mode bg */}
-      <h3 className="text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">Generate Chart</h3>
+      <h3 className="text-md sm:text-lg font-semibold mb-4 text-gray-800 dark:text-gray-200">Generate Chart</h3>
 
       {/* Chart Type Selection */}
-      <div className="mb-4 flex items-center">
-        <label htmlFor="chartType" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mr-2">Chart Type:</label>
+      <div className="mb-4 flex flex-col sm:flex-row sm:items-center"> {/* Stack on mobile */}
+        <label htmlFor="chartType" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mr-0 sm:mr-2 mb-1 sm:mb-0">Chart Type:</label>
         <select
           id="chartType" // Ensure id matches label htmlFor
           value={chartType} // Ensure value is controlled
           onChange={(e) => setChartType(e.target.value)}
-          className="mt-1 block w-auto pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+          className="mt-1 block w-full sm:w-auto pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
         >
           <option value="bar">Bar Chart</option>
           <option value="line">Line Chart</option>
@@ -331,14 +344,14 @@ function FlexibleChartGenerator({ data = [] }) { // Added default value for data
 
       {/* Axis Selection - Adjust grid based on chart type */}
       {/* Dynamic grid columns: 2 for 2D, 3 for 3D */}
-      <div className={`grid grid-cols-1 md:grid-cols-2 ${showZAxis ? 'lg:grid-cols-3' : ''} gap-4 mb-4`}>
+      <div className={`grid grid-cols-1 ${showZAxis ? 'sm:grid-cols-3' : 'sm:grid-cols-2'} gap-4 mb-4`}> {/* Simpler grid for mobile */}
         <div>
           <label htmlFor="xAxis" className="block text-sm font-medium text-gray-700 dark:text-gray-300">X-Axis:</label>
           <select
             id="xAxis"
             value={xAxisColumn} // Ensure value is controlled
             onChange={(e) => setXAxisColumn(e.target.value)}
-            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+            className="mt-1 block w-full pl-3 pr-10 py-2 text-sm border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md"
           >
             <option value="">Select...</option>
             {columns.map(col => (
@@ -352,7 +365,7 @@ function FlexibleChartGenerator({ data = [] }) { // Added default value for data
             id="yAxis"
             value={yAxisColumn} // Ensure value is controlled
             onChange={(e) => setYAxisColumn(e.target.value)}
-            className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+            className="mt-1 block w-full pl-3 pr-10 py-2 text-sm border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md"
           >
             <option value="">Select...</option>
             {columns.map(col => (
@@ -368,7 +381,7 @@ function FlexibleChartGenerator({ data = [] }) { // Added default value for data
               id="zAxis"
               value={zAxisColumn} // Ensure value is controlled
               onChange={(e) => setZAxisColumn(e.target.value)}
-              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+              className="mt-1 block w-full pl-3 pr-10 py-2 text-sm border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-200 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 rounded-md"
             >
               <option value="">Select...</option>
               {columns.map(col => (
@@ -380,7 +393,7 @@ function FlexibleChartGenerator({ data = [] }) { // Added default value for data
       </div>
 
       {/* Chart Display Area */}
-      <div className="mt-4 h-96 relative"> {/* Ensure container has height, relative for potential absolute positioning inside */}
+      <div className="mt-4 h-64 sm:h-96 relative"> {/* Adjusted height for mobile */}
         {renderChart()}
       </div>
       {/* Button to go to full chart page is in App.jsx */}

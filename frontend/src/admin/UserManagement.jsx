@@ -37,7 +37,7 @@ const UserManagement = () => {
         const response = await api.get(`/api/dashboard/users`); // Use the api instance
 
         if (response.data.success) {
-          console.log("Fetched users:", response.data.users); // Debug log
+          // console.log("Fetched users:", response.data.users); // Debug log
           setUsers(response.data.users);
         } else {
           throw new Error(response.data.message || "Failed to fetch users");
@@ -85,11 +85,12 @@ const UserManagement = () => {
 
     // Listen for user deletions
     socket.on("userDeleted", (deletedUserId) => {
-        console.log("User deleted received:", deletedUserId);
-        setUsers((prevUsers) => prevUsers.filter((user) => user._id !== deletedUserId));
-        toast.warn(`A user was deleted.`); // Optional notification
+      console.log("User deleted received:", deletedUserId);
+      setUsers((prevUsers) =>
+        prevUsers.filter((user) => user._id !== deletedUserId)
+      );
+      toast.warn(`A user was deleted.`); // Optional notification
     });
-
 
     socket.on("disconnect", () => {
       console.log("Socket disconnected");
@@ -109,7 +110,7 @@ const UserManagement = () => {
   // Handler for changing user role
   const handleRoleChange = async (userId, newRole) => {
     try {
-      await api.put(`/api/dashboard/users/${userId}/role`, { role: newRole });
+      await api.put(`/api/dashboard/users/${userId}/role`, { role: newRole }); // This line is correct
       toast.success("User role updated!"); // Optional success notification
       // State update will be handled by the 'userUpdated' socket event
     } catch (err) {
@@ -148,7 +149,7 @@ const UserManagement = () => {
     <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
       <ToastContainer
         position="top-right"
-        autoClose={3000}
+        autoClose={2000}
         hideProgressBar={false}
         newestOnTop={false}
         closeOnClick
@@ -159,7 +160,7 @@ const UserManagement = () => {
       />
 
       <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-200 mb-4">
-        User Management
+        User Management ({users.length})
       </h2>
       <div className="overflow-x-auto">
         <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -169,7 +170,8 @@ const UserManagement = () => {
                 scope="col"
                 className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
               >
-                #
+                {" "}
+                {/* Hidden on small screens, shown on md+ */}#
               </th>
               <th
                 scope="col"
@@ -179,37 +181,37 @@ const UserManagement = () => {
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider hidden sm:table-cell" // Hide on small screens
               >
                 Email
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider hidden md:table-cell" // Hide on medium- screens
               >
                 Role
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider hidden lg:table-cell" // Hide on large- screens
               >
                 Login Type
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider " // Always show
               >
                 Change Role
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider hidden md:table-cell" // Hide on medium- screens
               >
                 Registered Date
               </th>
               <th
                 scope="col"
-                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider"
+                className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-300 uppercase tracking-wider " // Always show
               >
                 Delete
               </th>
@@ -219,7 +221,7 @@ const UserManagement = () => {
             {users.length === 0 && (
               <tr>
                 <td
-                  colSpan="8" // Increased colspan
+                  colSpan="8" // Adjust colspan if columns are hidden
                   className="px-6 py-4 text-center text-sm text-gray-500 dark:text-gray-400"
                 >
                   No users found.
@@ -227,20 +229,27 @@ const UserManagement = () => {
               </tr>
             )}
             {users.map(
-              (user, index) => // Add index parameter here
+              (
+                user,
+                index // Add index parameter here
+              ) =>
                 user &&
                 user._id && ( // Add checks for user and user._id
                   <tr
                     key={user._id} // Use _id as key
                     className="hover:bg-gray-100 dark:hover:bg-gray-700"
                   >
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-400 ">
+                      {" "}
+                      {/* Hidden on small screens */}
                       {index + 1} {/* Display index + 1 as serial number */}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                       {user.name}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 hidden sm:table-cell">
+                      {" "}
+                      {/* Hide on small screens */}
                       <div className="flex items-center space-x-2">
                         <span>
                           {revealedEmails[user._id]
@@ -250,37 +259,56 @@ const UserManagement = () => {
                         <button
                           onClick={() => toggleEmailVisibility(user._id)}
                           className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"
-                          aria-label={revealedEmails[user._id] ? "Hide email" : "Show email"}
+                          aria-label={
+                            revealedEmails[user._id]
+                              ? "Hide email"
+                              : "Show email"
+                          }
                         >
-                          {revealedEmails[user._id] ? <FaEyeSlash /> : <FaEye />}
+                          {revealedEmails[user._id] ? (
+                            <FaEyeSlash />
+                          ) : (
+                            <FaEye />
+                          )}
                         </button>
                       </div>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 capitalize">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 capitalize hidden md:table-cell">
+                      {" "}
+                      {/* Hide on medium- screens */}
                       {user.role}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 hidden lg:table-cell">
+                      {" "}
+                      {/* Hide on large- screens */}
                       {user.googleId ? "Google" : "Local"}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 ">
+                      {" "}
+                      {/* Always show */}
                       {/* Role Dropdown */}
                       <select
                         value={user.role}
                         onChange={(e) =>
                           handleRoleChange(user._id, e.target.value)
                         }
-                        className="block w-full px-2 py-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm text-gray-700 dark:text-gray-200"
+                        className="block w-full px-2 py-1 border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-xs sm:text-sm text-gray-700 dark:text-gray-200" // Smaller text on mobile
                       >
                         <option value="user">User</option>
                         <option value="admin">Admin</option>
                       </select>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300">
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-gray-300 hidden md:table-cell">
+                      {" "}
+                      {/* Hide on medium- screens */}
                       {user.createdAt
                         ? new Date(user.createdAt).toLocaleDateString()
                         : "N/A"}
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
+
+                    <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2 ">
+                      {" "}
+                      {/* Always show */}
                       <button
                         onClick={() => handleDeleteUser(user._id, user.name)}
                         className="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"

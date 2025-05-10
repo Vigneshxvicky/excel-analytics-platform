@@ -83,7 +83,7 @@ function FileUpload({ onFileUploaded }) {
     <div className="flex flex-col items-center space-y-6">
       {/* Drag and Drop Box */}
       <div
-        className={`w-full max-w-md h-40 flex items-center justify-center border-2 border-dashed transition duration-300 ease-in-out ${
+        className={`w-full max-w-xs sm:max-w-md h-32 sm:h-40 flex items-center justify-center border-2 border-dashed transition duration-300 ease-in-out ${
           isDragging
             ? "border-blue-500 bg-blue-100 text-blue-500"
             : "border-gray-300 text-gray-500"
@@ -92,13 +92,15 @@ function FileUpload({ onFileUploaded }) {
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
-        <p className="text-lg font-medium">
+        <p className="text-base sm:text-lg font-medium text-center px-2">
+          {" "}
+          {/* Centered text and padding */}
           {fileName ? `Selected: ${fileName}` : "Drag & Drop your file here"}
         </p>
       </div>
 
       {/* Browse File Button */}
-      <label className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 rounded cursor-pointer transition">
+      <label className="bg-blue-500 hover:bg-blue-600 text-white font-semibold py-2 px-4 text-sm sm:text-base rounded cursor-pointer transition">
         Browse File
         <input
           type="file"
@@ -112,7 +114,7 @@ function FileUpload({ onFileUploaded }) {
       <button
         onClick={uploadFile}
         disabled={uploading || !selectedFile}
-        className={`px-6 py-3 font-semibold text-white rounded-lg transition ${
+        className={`px-4 py-2 sm:px-6 sm:py-3 font-semibold text-white text-sm sm:text-base rounded-lg transition ${
           uploading
             ? "bg-gray-400 cursor-not-allowed"
             : "bg-green-500 hover:bg-green-600"

@@ -68,28 +68,30 @@ const DashboardHome = () => {
   // Render the dashboard with dynamic data
   return (
     <div>
-      <h2 className="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-4">
+      <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 dark:text-gray-200 mb-4">
         Welcome to the Admin Dashboard
       </h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+        {" "}
+        {/* Responsive grid columns */}
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg">
-          <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
+          <h3 className="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-200">
             Total Users
           </h3>
-          <p className="text-gray-500 dark:text-gray-400 text-2xl font-bold">
+          <p className="text-gray-500 dark:text-gray-400 text-xl sm:text-2xl font-bold">
             {stats.userCount}
           </p>
         </div>
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg">
-          <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
+          <h3 className="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-200">
             Active Connections
           </h3>
-          <p className="text-gray-500 dark:text-gray-400 text-2xl font-bold">
+          <p className="text-gray-500 dark:text-gray-400 text-xl sm:text-2xl font-bold">
             {stats.activeConnections}
           </p>
         </div>
         <div className="bg-white dark:bg-gray-800 p-6 rounded-xl shadow-lg">
-          <h3 className="text-xl font-semibold text-gray-800 dark:text-gray-200">
+          <h3 className="text-lg sm:text-xl font-semibold text-gray-800 dark:text-gray-200">
             Total Uploads
           </h3>
           <p className="text-gray-500 dark:text-gray-400 text-2xl font-bold">

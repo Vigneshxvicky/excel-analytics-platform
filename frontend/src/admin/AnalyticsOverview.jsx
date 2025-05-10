@@ -54,7 +54,7 @@ const AnalyticsOverview = () => {
       );
 
       // Log the received data structure for debugging
-      console.log("User List API Response Data:", response.data);
+      // console.log("User List API Response Data:", response.data);
 
       // Check if response.data.users exists and is an array
       if (
@@ -136,7 +136,7 @@ const AnalyticsOverview = () => {
       }, {});
 
       // Log the grouped counts
-      console.log("[Analytics] Counts By Period:", countsByPeriod);
+      // console.log("[Analytics] Counts By Period:", countsByPeriod);
 
       // Generate labels and cumulative dataset for the period
       const labels = [];

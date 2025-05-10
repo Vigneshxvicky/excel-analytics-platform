@@ -180,7 +180,9 @@ import AdminDashboard from "./admin/AdminDashboard";
 // Import ThemeProvider (for dark/light mode)
 import { ThemeProvider, ThemeContext } from "./context/ThemeContext"; // Import ThemeContext
 import AboutUs from "./components/AboutUs";
-
+import { getUserFromToken } from "./utils/auth";
+const user = getUserFromToken(); // Check what this returns in the console
+  const userInitial = user?.name ? user.name.charAt(0).toUpperCase() : "?";
 /*
   DashboardWrapper:
   - Extracts the token from the URL (if present) and saves it.
@@ -228,6 +230,17 @@ const DashboardWrapper = ({ fileData = [], handleFileUploaded }) => {
 
         {/* Right side container for toggle and nav */}
         <div className="flex items-center space-x-6">
+        {user && user.name ? (
+          <div className="flex items-center justify-center h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-purple-500 text-white font-bold text-sm sm:text-lg" title={user.name}>
+            {userInitial}
+          </div>
+        ) : (
+          // Placeholder if no user/name
+          <div className="flex items-center justify-center h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-gray-500 text-white font-bold text-sm sm:text-lg">
+            ?
+          </div>
+        )}
+
           {/* Dark Mode Toggle Button */}
           <button
             onClick={() => setDarkMode(!darkMode)}
@@ -250,7 +263,7 @@ const DashboardWrapper = ({ fileData = [], handleFileUploaded }) => {
         </div>
       </header>
 
-      <div className="relative z-10 flex">
+      <div className="relative z-10 flex flex-col md:flex-row"> {/* Stack on mobile, row on medium+ */}
         {/* Unique Clipped Sidebar */}
         <aside
           className="w-1/3 lg:w-1/4 h-screen bg-gradient-to-b from-purple-800 to-indigo-800 text-white p-8"
@@ -286,7 +299,7 @@ const DashboardWrapper = ({ fileData = [], handleFileUploaded }) => {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-8 overflow-y-auto space-y-16">
+        <main className="flex-1 p-4 md:p-8 overflow-y-auto space-y-10 md:space-y-16"> {/* Reduced padding on mobile */}
           {/* File Upload Section */}
           <section id="upload">
             {/* Apply dark mode styles to the container div */}
@@ -301,12 +314,12 @@ const DashboardWrapper = ({ fileData = [], handleFileUploaded }) => {
           {/* Data Analysis Section */}
           {Array.isArray(fileData) && fileData.length > 0 && (
             <section id="analysis">
-              <h2 className="text-3xl font-bold text-white text-center mb-10">
+              <h2 className="text-2xl md:text-3xl font-bold text-white text-center mb-6 md:mb-10"> {/* Responsive text size */}
                 Data Analysis
               </h2>
               {/* Use vertical stacking for main sections, then grid for smaller items */}
               <div className="space-y-8">
-                {/* Chart takes full width */}
+                {/* Chart */}
                 {/* Apply dark mode styles to the container div */}
                 <div className="bg-white dark:bg-gray-800 bg-opacity-80 dark:bg-opacity-80 backdrop-blur-md rounded-xl shadow-2xl p-6 transform transition duration-300 hover:scale-105">
                   <FlexibleChartGenerator data={fileData} />
@@ -320,7 +333,7 @@ const DashboardWrapper = ({ fileData = [], handleFileUploaded }) => {
                       </button>
                   </div>
                 </div>
-                {/* Data Table takes full width */}
+                {/* Data Table */}
                 {/* Apply dark mode styles to the container div */}
                 <div className="bg-white dark:bg-gray-800 bg-opacity-80 dark:bg-opacity-80 backdrop-blur-md rounded-xl shadow-2xl p-6 transform transition duration-300 hover:scale-105">
                   <DataTable data={fileData} />
@@ -340,7 +353,7 @@ const DashboardWrapper = ({ fileData = [], handleFileUploaded }) => {
           <section id="history">
             {/* Apply dark mode styles to the container div */}
             <div className="bg-white dark:bg-gray-800 bg-opacity-80 dark:bg-opacity-80 backdrop-blur-md rounded-xl shadow-2xl p-8">
-              <h2 className="text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6">
+              <h2 className="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-100 mb-6"> {/* Responsive text size */}
                 Upload History
               </h2>
               <UploadHistory />
@@ -367,7 +380,7 @@ function App() {
   };
 
   useEffect(() => {
-    console.log("App fileData updated:", fileData);
+    // console.log("App fileData updated:", fileData);
   }, [fileData]);
 
   return (
@@ -424,4 +437,3 @@ function App() {
 }
 
 export default App;
-

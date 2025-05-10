@@ -18,11 +18,12 @@ const { GoogleGenerativeAI } = require("@google/generative-ai"); // Import Googl
 // Initialize Express App
 const app = express();
 const cors = require('cors');
-app.use(cors({ origin: 'https://excel-analytics-platform-frontend.onrender.com' }));
+app.use(cors({
+    origin: ['https://excel-analytics-platform-frontend.onrender.com', 'http://localhost:3000'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
 app.use(express.json());
-// res.setHeader('Access-Control-Allow-Origin', 'https://excel-analytics-platform-frontend.onrender.com');
-// res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-// res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
 // Setup Server & WebSocket
 const server = http.createServer(app);
 const io = new Server(server, { cors: { origin: "*" } });
@@ -34,19 +35,19 @@ mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopol
 
 
     // Initialize Google Gemini AI
-    // let genAI;
-    // let model;
-    // if (process.env.GEMINI_API_KEY) {
-    //     genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-    //     const modelName = "gemini-1.5-flash-latest"; // Define model name
-    //     console.log(`✨ Initializing Gemini model: ${modelName}`); // Log the model name being used
-    //     model = genAI.getGenerativeModel({ model: modelName }); // Use the variable
-    // } else {
-    //     console.warn("⚠️ GEMINI_API_KEY not found in .env file. AI Summarization will be disabled.");
-    // }
-    
+    let genAI;
+    let model;
+    if (process.env.GEMINI_API_KEY) {
+        genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
+        const modelName = "gemini-1.5-flash-latest"; // Define model name
+        console.log(`✨ Initializing Gemini model: ${modelName}`); // Log the model name being used
+        model = genAI.getGenerativeModel({ model: modelName }); // Use the variable
+    } else {
+        console.warn("⚠️ GEMINI_API_KEY not found in .env file. AI Summarization will be disabled.");
+    }
+
     // ... (rest of the code) ...
-    
+
 
 
 // JWT Middleware
@@ -117,20 +118,63 @@ mongoose.connection.once("open", () => {
 // File Upload Setup
 const upload = multer({ storage: multer.memoryStorage() });
 
-// Upload History Endpoint (Fixed Privacy)
 app.get("/api/upload-history", verifyToken, async (req, res) => {
+    try {
+        const { userId } = req.user;
+        const uploads = await Upload.find({ user: userId })
+            .populate("user", "name")
+            .sort({ uploadDate: -1 }); // Changed from createdAt to uploadDate
+        res.json({ success: true, history: uploads });
+    } catch (error) {
+        console.error("Error fetching upload history:", error);
+        res.status(500).json({ success: false, message: "Error retrieving upload history" });
+    }
+});
+
+// Endpoint to delete ALL upload history for the authenticated user
+app.delete("/api/upload-history/all", verifyToken, async (req, res) => {
+    try {
+        const { userId } = req.user; // Get userId from the verified token
+
+        // Delete all upload records for this user
+        const result = await Upload.deleteMany({ user: userId });
+
+        broadcastStats(io); // Update stats after deletion
+        res.json({ success: true, message: `${result.deletedCount} upload records deleted successfully.` });
+    } catch (error) {
+        console.error("Error deleting all upload records for user:", error);
+        res.status(500).json({ success: false, message: "Error deleting all upload records." });
+    }
+});
+
+
+// Upload History Endpoint (Fixed Privacy)
+app.delete("/api/upload-history/:uploadId", verifyToken, async (req, res) => {
   try {
-    // Fetch uploads ONLY for the logged-in user.
-    const { userId } = req.user; // Get userId from the verified token
-    const uploads = await Upload.find({ user: userId }) // Filter by user ID
-      .populate("user", "name") // Only grab the "name" field from the User document
-      .sort({ uploadDate: -1 });
-    res.json({ success: true, history: uploads });
+      const { uploadId } = req.params;
+      const { userId } = req.user; // Get userId from the verified token
+
+      // Find the upload record
+      const uploadToDelete = await Upload.findById(uploadId);
+
+      if (!uploadToDelete) {
+          return res.status(404).json({ success: false, message: "Upload record not found." });
+      }
+
+      // Ensure the user deleting the record is the one who uploaded it
+      if (uploadToDelete.user.toString() !== userId) {
+          return res.status(403).json({ success: false, message: "Forbidden: You can only delete your own uploads." });
+      }
+
+      await Upload.findByIdAndDelete(uploadId);
+      broadcastStats(io); // Update stats after deletion
+      res.json({ success: true, message: "Upload record deleted successfully." });
   } catch (error) {
-    console.error("Error fetching upload history:", error);
-    res.status(500).json({ success: false, message: "Error retrieving upload history" });
+      console.error("Error deleting upload record:", error);
+      res.status(500).json({ success: false, message: "Error deleting upload record." });
   }
 });
+
 
 // Excel/CSV Upload & Parsing (Fixed User Saving)
 // Ensure the route is protected so that req.user is available
@@ -268,8 +312,8 @@ app.use(passport.session());
 app.get("/auth/google", passport.authenticate("google", { scope: ["profile", "email"] }));
 app.get("/auth/google/callback", passport.authenticate("google", { failureRedirect: "/login" }), (req, res) => {
     const token = jwt.sign({ userId: req.user._id, role: req.user.role, name: req.user.name }, process.env.JWT_SECRET, { expiresIn: "1h" });
-// Redirect to the FRONTEND dashboard URL with the token
-res.redirect(`https://excel-analytics-platform-frontend.onrender.com/dashboard?token=${token}`);
+// Redirect to the local frontend dashboard URL with the token
+res.redirect(`http://localhost:3000/dashboard?token=${token}`);
 if (!process.env.JWT_SECRET) {
         console.error("❌ JWT_SECRET environment variable is not set!");
     }
@@ -282,11 +326,36 @@ if (!process.env.JWT_SECRET) {
 // Fetch actual users for the initial load
 app.get("/api/dashboard/users", verifyToken, async (req, res) => {
   // Optional: Add role check to ensure only admins can access
-  // if (req.user.role !== 'admin') {
-  //     return res.status(403).json({ success: false, message: 'Forbidden' });
-  // }
-  const users = await User.find({}, 'name email role googleId'); // Select specific fields, exclude password
-  res.json({ success: true, users });
+  if (req.user.role !== 'admin') {
+      return res.status(403).json({ success: false, message: 'Forbidden' });
+  }
+  const users = await User.find({}, 'name email role googleId createdAt'); // Ensure createdAt is selected
+  res.json({ success:  true, users });
+});
+
+// Endpoint to update a user's role
+app.put("/api/dashboard/users/:userId/role", verifyToken, async (req, res) => {
+  if (req.user.role !== 'admin') { // Ensure only admins can change roles
+      return res.status(403).json({ success: false, message: 'Forbidden: Only admins can change user roles.' });
+  }
+  try {
+      const { userId } = req.params;
+      const { role } = req.body;
+
+      if (!['user', 'admin'].includes(role)) {
+          return res.status(400).json({ success: false, message: 'Invalid role specified.' });
+      }
+
+      const updatedUser = await User.findByIdAndUpdate(userId, { role }, { new: true });
+      if (!updatedUser) {
+          return res.status(404).json({ success: false, message: 'User not found.' });
+      }
+      io.emit("userUpdated", updatedUser); // Notify clients about the update
+      res.json({ success: true, message: 'User role updated successfully.', user: updatedUser });
+  } catch (error) {
+      console.error("Error updating user role:", error);
+      res.status(500).json({ success: false, message: 'Error updating user role.' });
+  }
 });
 
 // Make Analytics endpoint dynamic (Example: Cumulative User Growth by Month)
@@ -406,38 +475,64 @@ const isAdmin = (req, res, next) => {
 app.get("/api/dashboard/analytics", (req, res) => res.json({ labels: ["Jan", "Feb", "Mar"], dataset: [100, 150, 200] }));
 // Placeholder Endpoints (Add comments indicating they are placeholders)
 // Updated Summarize Endpoint using Gemini
-// app.post('/api/summarize', verifyToken, async (req, res) => {
-//   if (!model) {
-//       return res.status(503).json({ success: false, message: "AI Summarization is not configured or enabled." });
-//   }
+app.post('/api/summarize', verifyToken, async (req, res) => {
+  if (!model) {
+      return res.status(503).json({ success: false, message: "AI Summarization is not configured or enabled." });
+  }
 
-//   const { data } = req.body; // Expecting the JSON data array
+  const { data } = req.body; // Expecting the JSON data array
 
-//   if (!data || !Array.isArray(data) || data.length === 0) {
-//       return res.status(400).json({ success: false, message: "No data provided for summarization." });
-//   }
+  if (!data || !Array.isArray(data) || data.length === 0) {
+      return res.status(400).json({ success: false, message: "No data provided for summarization." });
+  }
 
-//   // Prepare a prompt - limit data size to avoid exceeding token limits
-//   // Convert first few rows to string format for the prompt
-//   const dataSample = data.slice(0, 30); // Limit to first 30 rows for the prompt
-//   const dataString = JSON.stringify(dataSample, null, 2);
-//   const prompt = `Analyze the following data sample (in JSON format) and provide a concise summary of the key insights, trends, or main points. Focus on what the data represents overall:\n\n${dataString}\n\nSummary:`;
+  // Prepare a prompt - limit data size to avoid exceeding token limits
+  // Convert first few rows to string format for the prompt
+  const dataSample = data.slice(0, 30); // Limit to first 30 rows for the prompt
+  const dataString = JSON.stringify(dataSample, null, 2);
+  const prompt = `Analyze the following data sample (in JSON format) and provide a concise summary of the key insights, trends, or main points. Focus on what the data represents overall:\n\n${dataString}\n\nSummary:`;
 
-//   try {
-//     // --- This is where the error likely occurs ---
-//     const result = await model.generateContent(prompt);
-//     const response = await result.response;
-//     const summary = response.text();
-//     // --- End of likely error area ---
+  try {
+    const result = await model.generateContent(prompt);
+    // Correctly access the response and text
+    const response = result.response;
+    const summary = response.text();
 
-//     res.json({ success: true, summary });
-// } catch (error) { // <--- This block is being executed
-//     console.error("Gemini API Error:", error); // Check your backend console for this!
-//     res.status(500).json({ success: false, message: "Error generating AI summary." });
-// }
+    res.json({ success: true, summary });
+} catch (error) {
+    console.error("Gemini API Error:", error);
+    res.status(500).json({ success: false, message: "Error generating AI summary." });
+}
 
-// });app.post('/api/predict', (req, res) => res.json({ success: true, prediction: { message: "Placeholder prediction." } }));
+});
+// app.post('/api/predict', (req, res) => res.json({ success: true, prediction: { message: "Placeholder prediction." } }));
 
+app.delete("/api/dashboard/users/:userId", verifyToken, async (req, res) => {
+  // Optional: Add admin role check
+  // if (req.user.role !== 'admin') {
+  //   return res.status(403).json({ message: 'Forbidden' });
+  // }
+  try {
+    const { userId } = req.params; // Get the user ID from the URL parameter
+
+    // Delete the user from the database
+    const deletedUser = await User.findByIdAndDelete(userId);
+
+    if (!deletedUser) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    // Broadcast user deletion to other connected clients
+    io.emit("userDeleted", userId);
+
+    res.json({ success: true, message: "User deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting user:", error);
+    res
+      .status(500)
+      .json({ message: "Error deleting user", error: error.message });
+  }
+});
 
 // API Endpoint to get initial dashboard stats
 app.get('/api/dashboard/stats', verifyToken, async (req, res) => {

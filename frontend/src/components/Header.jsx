@@ -1,4 +1,4 @@
-// src/components/Header.jsx
+// c:\Users\vigne\OneDrive\Desktop\excel-analysis-platform\excel-analytics-platform\frontend\src\components\Header.jsx
 import React, { useContext } from "react"; // Import useContext
 import { useNavigate } from "react-router-dom";
 import { getUserFromToken } from "../utils/auth";
@@ -15,8 +15,8 @@ function Header({ onMenuToggle }) { // Accept onMenuToggle prop
     navigate("/login");
   };
 
-  return (
-    <header className="flex flex-col sm:flex-row items-center justify-between py-3 px-4 sm:px-8 bg-blue-600 text-white shadow-md fixed top-0 left-0 right-0 z-20 h-16"> {/* Added fixed, z-20, h-16 */}
+  return ( // Added fixed, z-20, h-auto for dynamic height, sm:h-16 for larger screens
+    <header className="flex flex-col sm:flex-row items-center justify-between py-3 px-4 sm:px-8 bg-blue-600 text-white shadow-md fixed top-0 left-0 right-0 z-20 h-auto sm:h-16">
       <div className="flex items-center w-full sm:w-auto mb-2 sm:mb-0">
         {/* Burger Menu Button - visible on all screens for this example */}
         {/* <button onClick={onMenuToggle} className="mr-4 p-2 rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
@@ -24,14 +24,14 @@ function Header({ onMenuToggle }) { // Accept onMenuToggle prop
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 6h16M4 12h16M4 18h16" />
           </svg>
         </button> */}
-        {/* Title */} 
-        {/* Controls Section */}
-                <div className="mb-4 mt-4">
-                    <Link to="/dashboard" className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-purple-700 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-600">
+        {/* Title */}
+        {/* Back to Dashboard Link - ensure it's styled appropriately for header context */}
+                <div className="mr-auto sm:mr-4"> {/* Pushes title to the right on small screens if needed, or adjust layout */}
+                    <Link to="/dashboard" className="inline-flex items-center px-3 py-1.5 border border-transparent text-xs sm:text-sm font-medium rounded-md shadow-sm text-white bg-purple-700 hover:bg-blue-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:bg-indigo-500 dark:hover:bg-indigo-600">
                         &larr; Back to Dashboard
                     </Link>
                 </div>
-        <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold text-center pl-80   sm:text-left">VizXcel</h1>
+        <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-center sm:text-left sm:pl-0 pl-4">VizXcel</h1> {/* Adjusted padding and size */}
       </div>
       <div className="flex items-center space-x-4 sm:space-x-6">
         {/* Dark Mode Toggle Button */}
@@ -39,7 +39,7 @@ function Header({ onMenuToggle }) { // Accept onMenuToggle prop
           onClick={() => setDarkMode(!darkMode)}
           // Adjusted styling slightly for header context
           className="bg-blue-500 dark:bg-gray-700 text-white dark:text-gray-200 px-3 py-1.5 rounded-lg hover:bg-blue-400 dark:hover:bg-gray-600 text-sm transition-colors"
-        >
+        > {/* Simplified icon display */}
           {darkMode ? "☀️" : "🌙"} {/* Simplified icon display */}
         </button>
         {/* User Initial Icon */}
@@ -53,11 +53,11 @@ function Header({ onMenuToggle }) { // Accept onMenuToggle prop
             ?
           </div>
         )}
-        
+
         {/* Logout Button */}
         <button
           onClick={handleLogout}
-          className="bg-red-500 hover:bg-red-600 py-1 px-3 sm:py-2 sm:px-4 rounded text-sm sm:text-base" // Smaller button on mobile
+          className="bg-red-500 hover:bg-red-600 py-1.5 px-3 text-xs sm:text-sm rounded hidden md:inline-flex items-center" // Changed sm: to md:
         >
           Logout
         </button>

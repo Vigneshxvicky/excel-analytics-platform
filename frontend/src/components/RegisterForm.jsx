@@ -18,7 +18,7 @@ function RegisterForm() {
 
     try {
       const response = await axios.post(
-        "https://excel-analytics-platform-backend.onrender.com/api/register",
+        "https://localhost:5000/api/register",
         {
           name,
           email,
@@ -65,7 +65,7 @@ function RegisterForm() {
       <div className="relative z-10 flex flex-col items-center w-full">
         {/* Grand Brand Text - Using "Register" */}
         <h1
-          className="text-5xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight
+          className="text-4xl sm:text-5xl lg:text-7xl font-extrabold tracking-tight /* Responsive text size */
                        bg-gradient-to-r from-blue-500 via-teal-400 to-green-400 /* Different gradient for Register */
                        bg-clip-text text-transparent
                        mb-12 text-center animate__animated animate__fadeInDown animate__delay-0.5s" /* Adjusted animation/delay */
@@ -75,7 +75,7 @@ function RegisterForm() {
         </h1>
 
         {/* Register form container */}
-        <div className="relative z-10 flex items-center w-5/6 justify-center min-h-screen">
+        <div className="relative z-10 flex items-center w-full sm:w-5/6 justify-center"> {/* Adjusted width for smaller screens */}
           <div className={cardClass}>
             <h2 className={headerClass}>Register</h2>
 

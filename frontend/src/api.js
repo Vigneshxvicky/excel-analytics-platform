@@ -2,7 +2,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: 'https://excel-analytics-platform-backend.onrender.com'
+  baseURL: 'https://excel-analytics-platform-backend.onrender.com'  // Changed to local backend
 });
 
 // Add a request interceptor to attach token automatically
