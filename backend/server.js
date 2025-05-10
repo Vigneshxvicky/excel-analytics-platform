@@ -313,7 +313,7 @@ app.get("/auth/google", passport.authenticate("google", { scope: ["profile", "em
 app.get("/auth/google/callback", passport.authenticate("google", { failureRedirect: "/login" }), (req, res) => {
     const token = jwt.sign({ userId: req.user._id, role: req.user.role, name: req.user.name }, process.env.JWT_SECRET, { expiresIn: "1h" });
 // Redirect to the local frontend dashboard URL with the token
-res.redirect(`http://localhost:3000/dashboard?token=${token}`);
+res.redirect(`http://excel-analytics-platform-frontend.onrender.com/dashboard?token=${token}`);
 if (!process.env.JWT_SECRET) {
         console.error("❌ JWT_SECRET environment variable is not set!");
     }
